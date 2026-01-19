@@ -8,15 +8,8 @@ extends MultiMeshInstance2D
 @export var sprite_size : Vector2 = Vector2(1, 1)
 
 #bullet data
-var _bullet_angular_velocity : Array[float]
-var _bullet_collision_group : Array[int]
-var _bullet_position : Array[Vector2]
-var _bullet_rotation : Array[float]
-var _bullet_lifetime : Array[float]
-var _bullet_speed : Array[float]
-var _bullet_size : Array[float]
-
-var _bullet_sprite_index : Array[int]
+enum bullet_data {POSITION, ROTATION, SPEED, SIZE, COLLISION_GROUP, ANGULAR_VEL, LIFETIME, SPRITE_INDEX, INSTANCE}
+var _bullet_data : Array[Array]
 
 #collision variables
 var _collision_group_node_positions : Array[Array] = [[]]
@@ -32,7 +25,6 @@ var _sprites_per_atlas_row : int
 #utilities
 const _vector2_right : Vector2 = Vector2(1, 0)
 var _spare_transform : Transform2D
-var _bullet_instance : Array[int]
 var _dead_bullets : Array[int]
 var _pool_size : int
 
@@ -100,27 +92,27 @@ func _MeshAndCollide() -> void:
 	if multimesh.instance_count < _pool_size:
 		breakpoint
 	for index in _pool_size:
-		if _bullet_lifetime[index] > 0:
-			_spare_transform = Transform2D(_bullet_rotation[index] - global_rotation, to_local(_bullet_position[index]))
-			_spare_transform.x *= _bullet_size[index] * 1.1
-			_spare_transform.y *= _bullet_size[index] * 1.1
+		if _bullet_data[bullet_data.LIFETIME][index] > 0:
+			_spare_transform = Transform2D(_bullet_data[bullet_data.ROTATION][index] - global_rotation, to_local(_bullet_data[bullet_data.POSITION][index]))
+			_spare_transform.x *= _bullet_data[bullet_data.SIZE][index] * 1.1
+			_spare_transform.y *= _bullet_data[bullet_data.SIZE][index] * 1.1
 			multimesh.set_instance_transform_2d(index, _spare_transform)
 
-			for node_index in _collision_group_node_positions[_bullet_collision_group[index]].size():
-				if ((_bullet_position[index] - _collision_group_node_positions[_bullet_collision_group[index]][node_index]).length_squared() < #get the distance between the node and the bullet
-					(_collision_group_node_radius[_bullet_collision_group[index]][node_index] + _bullet_size[index] * 0.5) **2 #If their sizes together are greater than the distance, they overlap
+			for node_index in _collision_group_node_positions[_bullet_data[bullet_data.COLLISION_GROUP][index]].size():
+				if ((_bullet_data[bullet_data.POSITION][index] - _collision_group_node_positions[_bullet_data[bullet_data.COLLISION_GROUP][index]][node_index]).length_squared() < #get the distance between the node and the bullet
+					(_collision_group_node_radius[_bullet_data[bullet_data.COLLISION_GROUP][index]][node_index] + _bullet_data[bullet_data.SIZE][index] * 0.5) **2 #If their sizes together are greater than the distance, they overlap
 					):
-					_collision_group_nodes[_bullet_collision_group[index]][node_index].Hit()
+					_collision_group_nodes[_bullet_data[bullet_data.COLLISION_GROUP][index]][node_index].Hit()
 
 
 func _ManageBulletLifetimes(delta : float):
 	for index in _pool_size:
-		if _bullet_lifetime[index] > 0:
-			if _bullet_lifetime[index] > delta:
-				_bullet_lifetime[index] -= delta
+		if _bullet_data[bullet_data.LIFETIME][index] > 0:
+			if _bullet_data[bullet_data.LIFETIME][index] > delta:
+				_bullet_data[bullet_data.LIFETIME][index] -= delta
 			
 			else:
-				_bullet_lifetime[index] = 0
+				_bullet_data[bullet_data.LIFETIME][index] = 0
 				_dead_bullets.append(index)
 				multimesh.set_instance_transform_2d(index, _spare_transform)
 
@@ -134,8 +126,8 @@ func _IncreaseMultimeshInstanceCount():
 		multimesh.set_instance_custom_data(
 			index,
 			Color(
-				(_bullet_sprite_index[index] % _sprites_per_atlas_row) * sprite_size.x,
-				(_bullet_sprite_index[index] / _sprites_per_atlas_row) * sprite_size.y,
+				(_bullet_data[bullet_data.SPRITE_INDEX][index] % _sprites_per_atlas_row) * sprite_size.x,
+				(_bullet_data[bullet_data.SPRITE_INDEX][index] / _sprites_per_atlas_row) * sprite_size.y,
 				sprite_size.x,
 				sprite_size.y
 			))
@@ -169,9 +161,9 @@ func _ClearBullets(kill : bool = false) -> void:
 	_dead_bullets.clear()
 
 	for index in _pool_size:
-		if (_bullet_lifetime[index] > 0):
+		if (_bullet_data[bullet_data.LIFETIME][index] > 0):
 			multimesh.set_instance_transform_2d(index, _spare_transform * 0)
-			_bullet_lifetime[index] = -1
+			_bullet_data[bullet_data.LIFETIME][index] = -1
 			if !kill: 
 				await get_tree().process_frame
 
@@ -185,6 +177,10 @@ func _SetupMovementBuckets() -> void:
 		var new_array : Array[int] = []
 		_movement_type_buckets.append(new_array)
 		_movement_type_methods[type] = _movement_type_methods[type].bind(type)
+
+func _SetupBulletData() -> void:
+	for type in bullet_data.size():
+		_bullet_data.append([])
 
 
 func _SwapItemBackAndPop(array : Array, index : int) -> void:
@@ -205,13 +201,24 @@ func _JaggedSwapItemBackAndPopArray(arrays : Array[Array], index : int) -> void:
 			parameter_array.pop_back() #delete the duplicate
 
 
+func _IsSameBullet(bullet_id : Vector2i) -> bool:
+	if _bullet_data[bullet_data.INSTANCE][bullet_id[0]] != bullet_id[1]:
+		push_warning("Invalid bullet index")
+		return false
+
+	else:
+		return true
+
+
+
 
 
 
 #Public methods
 
-##The shoot function spawns a bullet acording to the data given. Returns the BULLET ID in the shape of a Vector2, both numbers are necessary to ensure modification is possible
-func Shoot(bullet_position : Vector2, bullet_speed : float, bullet_lifetime : float, bullet_rotation : float, bullet_size : float, collision_group : String = "dummy", sprite_in_atlas : int = 0, angular_velocity : float = 0, bullet_movement : MovementType = MovementType.default) -> Vector2:
+##Returns the BULLET ID in the shape of a Vector2, both numbers are necessary to ensure modification is possible.
+##Where s = sprites in line: (x + sy) = sprite in atlas
+func Shoot(bullet_position : Vector2, bullet_speed : float, bullet_lifetime : float, bullet_rotation : float, bullet_size : float, collision_group : String = "dummy", sprite_in_atlas : int = 0, angular_velocity : float = 0, bullet_movement : MovementType = MovementType.default) -> Vector2i:
 	if !_allow_shooting:
 		push_warning("!_allow_shooting is true")
 		return _vector2_right * 0
@@ -221,30 +228,30 @@ func Shoot(bullet_position : Vector2, bullet_speed : float, bullet_lifetime : fl
 	if !_dead_bullets.is_empty():
 		i = _dead_bullets.pop_back()
 
-		_bullet_angular_velocity[i] = angular_velocity
-		_bullet_collision_group[i] = _collision_groups[collision_group]
-		_bullet_position[i] = bullet_position
-		_bullet_rotation[i] = bullet_rotation
-		_bullet_lifetime[i] = bullet_lifetime
-		_bullet_speed[i] = bullet_speed
-		_bullet_size[i] = bullet_size
+		_bullet_data[bullet_data.ANGULAR_VEL][i] = angular_velocity
+		_bullet_data[bullet_data.COLLISION_GROUP][i] = _collision_groups[collision_group]
+		_bullet_data[bullet_data.POSITION][i] = bullet_position
+		_bullet_data[bullet_data.ROTATION][i] = bullet_rotation
+		_bullet_data[bullet_data.LIFETIME][i] = bullet_lifetime
+		_bullet_data[bullet_data.SPEED][i] = bullet_speed
+		_bullet_data[bullet_data.SIZE][i] = bullet_size
 
-		_bullet_instance[i] += 1
-		_bullet_sprite_index[i] = sprite_in_atlas
+		_bullet_data[bullet_data.INSTANCE][i] += 1
+		_bullet_data[bullet_data.SPRITE_INDEX][i] = sprite_in_atlas
 
 	else:
 		i = _pool_size
 
-		_bullet_angular_velocity.append( angular_velocity)
-		_bullet_collision_group.append(_collision_groups[collision_group])
-		_bullet_lifetime.append(bullet_lifetime)
-		_bullet_position.append(bullet_position)
-		_bullet_rotation.append(bullet_rotation)
-		_bullet_speed.append(bullet_speed)
-		_bullet_size.append(bullet_size)
+		_bullet_data[bullet_data.ANGULAR_VEL].append( angular_velocity)
+		_bullet_data[bullet_data.COLLISION_GROUP].append(_collision_groups[collision_group])
+		_bullet_data[bullet_data.LIFETIME].append(bullet_lifetime)
+		_bullet_data[bullet_data.POSITION].append(bullet_position)
+		_bullet_data[bullet_data.ROTATION].append(bullet_rotation)
+		_bullet_data[bullet_data.SPEED].append(bullet_speed)
+		_bullet_data[bullet_data.SIZE].append(bullet_size)
 
-		_bullet_instance.append(1)
-		_bullet_sprite_index.append(sprite_in_atlas)
+		_bullet_data[bullet_data.INSTANCE].append(1)
+		_bullet_data[bullet_data.SPRITE_INDEX].append(sprite_in_atlas)
 		_pool_size += 1
 
 		if multimesh.instance_count < _pool_size:
@@ -262,35 +269,57 @@ func Shoot(bullet_position : Vector2, bullet_speed : float, bullet_lifetime : fl
 			sprite_size.y
 		))
 
-	return Vector2(i, _bullet_instance[i])
+	return Vector2i(i, _bullet_data[bullet_data.INSTANCE][i])
+
+
+func TouchBulletSpeed(bullet_id : Vector2i, modify : bool = false, new_speed : float = -1):
+	if !_IsSameBullet(bullet_id):
+		return
+	
+	if modify:
+		_bullet_data[bullet_data.SPEED][bullet_id[0]] = new_speed
+
+	else:
+		return _bullet_data[bullet_data.SPEED][bullet_id[0]]
+
+
+func TouchBulletLifetime(bullet_id : Vector2i, modify : bool = false, new_lifetime : float = -1):
+	if !_IsSameBullet(bullet_id):
+		return
+	
+	if modify:
+		_bullet_data[bullet_data.LIFETIME][bullet_id[0]] = new_lifetime
+
+	else:
+		return _bullet_data[bullet_data.LIFETIME][bullet_id[0]]
 
 
 ##The reset pool size is meant as a literal way of clean up. Since resizing is often expensive, it has to be explicit
 func ResetPoolSize() -> void: #reset and fill arrays
-	_bullet_angular_velocity.resize(preloaded_pool_size)
-	_bullet_collision_group.resize(preloaded_pool_size)
-	_bullet_position.resize(preloaded_pool_size)
-	_bullet_rotation.resize(preloaded_pool_size)
-	_bullet_lifetime.resize(preloaded_pool_size)
-	_bullet_speed.resize(preloaded_pool_size)
-	_bullet_size.resize(preloaded_pool_size)
+	_bullet_data[bullet_data.ANGULAR_VEL].resize(preloaded_pool_size)
+	_bullet_data[bullet_data.COLLISION_GROUP].resize(preloaded_pool_size)
+	_bullet_data[bullet_data.POSITION].resize(preloaded_pool_size)
+	_bullet_data[bullet_data.ROTATION].resize(preloaded_pool_size)
+	_bullet_data[bullet_data.LIFETIME].resize(preloaded_pool_size)
+	_bullet_data[bullet_data.SPEED].resize(preloaded_pool_size)
+	_bullet_data[bullet_data.SIZE].resize(preloaded_pool_size)
 
 	_dead_bullets.resize(preloaded_pool_size)
-	_bullet_instance.resize(preloaded_pool_size)
-	_bullet_sprite_index.resize(preloaded_pool_size)
+	_bullet_data[bullet_data.INSTANCE].resize(preloaded_pool_size)
+	_bullet_data[bullet_data.SPRITE_INDEX].resize(preloaded_pool_size)
 
 	multimesh.instance_count = preloaded_pool_size#20000 #observed frame rate limit
 	_pool_size = preloaded_pool_size
 
 	for index in preloaded_pool_size: #delete comments on test success
-		#_bullet_angular_velocity
-		_bullet_collision_group[index] = 0
-		_bullet_lifetime[index] = 0
-		_bullet_instance[index] = 1
-		#_bullet_position[index] = _vector2_right
-		#_bullet_rotation
-		#_bullet_size
-		#_bullet_speed
+		#_bullet_data[bullet_data.ANGULAR_VEL]
+		_bullet_data[bullet_data.COLLISION_GROUP][index] = 0
+		_bullet_data[bullet_data.LIFETIME][index] = 0
+		_bullet_data[bullet_data.INSTANCE][index] = 1
+		#_bullet_data[bullet_data.POSITION][index] = _vector2_right
+		#_bullet_data[bullet_data.ROTATION]
+		#_bullet_data[bullet_data.SIZE]
+		#_bullet_data[bullet_data.SPEED]
 
 		_dead_bullets[index] = index
 
@@ -387,9 +416,9 @@ func _MovementDefault(bucket_index : int) -> void:
 	var index : int = 0
 	var delta : float = get_physics_process_delta_time()
 	while index < _movement_type_buckets[bucket_index].size():
-		if _bullet_lifetime[_movement_type_buckets[bucket_index][index]] > 0:
-			_bullet_position[_movement_type_buckets[bucket_index][index]] += _vector2_right.rotated(_bullet_rotation[_movement_type_buckets[bucket_index][index]]) * _bullet_speed[_movement_type_buckets[bucket_index][index]] * delta
-			_bullet_rotation[_movement_type_buckets[bucket_index][index]] += _bullet_angular_velocity[_movement_type_buckets[bucket_index][index]]
+		if _bullet_data[bullet_data.LIFETIME][_movement_type_buckets[bucket_index][index]] > 0:
+			_bullet_data[bullet_data.POSITION][_movement_type_buckets[bucket_index][index]] += _vector2_right.rotated(_bullet_data[bullet_data.ROTATION][_movement_type_buckets[bucket_index][index]]) * _bullet_data[bullet_data.SPEED][_movement_type_buckets[bucket_index][index]] * delta
+			_bullet_data[bullet_data.ROTATION][_movement_type_buckets[bucket_index][index]] += _bullet_data[bullet_data.ANGULAR_VEL][_movement_type_buckets[bucket_index][index]]
 			index += 1
 		else:
 			_SwapItemBackAndPop(_movement_type_buckets[bucket_index], index)
