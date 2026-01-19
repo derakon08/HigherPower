@@ -158,6 +158,15 @@ func _RemoveObjectiveFromGroup(group_name : String, node : Node) -> void:
 				continue
 
 
+func _ChangeBulletMovementType(bullet_index : int, movement : MovementType) -> void:
+	_movement_type_buckets[movement].append(bullet_index)
+	
+	#Get the ARRAY INDEX which contains the bullet index
+	for index in _movement_type_buckets[movement].size():
+		if _movement_type_buckets[movement][index] == bullet_index:
+			_SwapItemBackAndPop(_movement_type_buckets[movement], index)
+
+
 func _ClearBullets(kill : bool = false) -> void:
 	_dead_bullets.clear()
 
@@ -200,15 +209,6 @@ func _JaggedSwapItemBackAndPopArray(arrays : Array[Array], index : int) -> void:
 		for inner_index in parameter_array.size() - 1: #for each array inside the array passed
 			parameter_array[inner_index][index] = parameter_array[inner_index][parameter_array.size() - 1] #place the item (nodes) in the last place to the index given
 			parameter_array.pop_back() #delete the duplicate
-
-
-func _IsSameBullet(bullet_id : Vector2i) -> bool:
-	if _bullet_data[bullet_data.INSTANCE][bullet_id[0]] != bullet_id[1]:
-		push_warning("Invalid bullet index")
-		return false
-
-	else:
-		return true
 
 
 
@@ -273,43 +273,34 @@ func Shoot(bullet_position : Vector2, bullet_speed : float, bullet_lifetime : fl
 	return Vector2i(i, _bullet_data[bullet_data.INSTANCE][i])
 
 
-func TouchBulletSpeed(bullet_id : Vector2i, modify : bool = false, new_speed : float = -1):
-	if !_IsSameBullet(bullet_id):
-		return
+##If modify is TRUE, it will assign the new_value to the bullet data in data_type. If modify is FALSE it will return the value of the bullet data in data_type
+func TouchBulletData(bullet_id : Vector2i, data_type : bullet_data, modify : bool = false, new_value : float = -1):
+	if _bullet_data[bullet_data.INSTANCE][bullet_id[0]] != bullet_id[1]:
+		push_warning("Invalid bullet index")
+		return null
 	
 	if modify:
-		_bullet_data[bullet_data.SPEED][bullet_id[0]] = new_speed
+		_bullet_data[data_type][bullet_id[0]] = new_value
 
 	else:
-		return _bullet_data[bullet_data.SPEED][bullet_id[0]]
+		return _bullet_data[data_type][bullet_id[0]]
 
 
-func TouchBulletLifetime(bullet_id : Vector2i, modify : bool = false, new_lifetime : float = -1):
-	if !_IsSameBullet(bullet_id):
+func ChangeBulletMovementType(bullet_id : Vector2i, movement : MovementType) -> void:
+	if _bullet_data[bullet_data.INSTANCE][bullet_id[0]] != bullet_id[1]:
+		push_warning("Invalid bullet index")
 		return
 	
-	if modify:
-		_bullet_data[bullet_data.LIFETIME][bullet_id[0]] = new_lifetime
-
-	else:
-		return _bullet_data[bullet_data.LIFETIME][bullet_id[0]]
+	_ChangeBulletMovementType.call_deferred(bullet_id[0], movement)
 
 
-##The reset pool size is meant as a literal way of clean up. Since resizing is often expensive, it has to be explicit
+##Dead bullets stay in memory to be recycled, ResetPoolSize is meant as a literal way of clean up. 
 func ResetPoolSize() -> void: #reset and fill arrays
-	_bullet_data[bullet_data.ANGULAR_VEL].resize(preloaded_pool_size)
-	_bullet_data[bullet_data.COLLISION_GROUP].resize(preloaded_pool_size)
-	_bullet_data[bullet_data.POSITION].resize(preloaded_pool_size)
-	_bullet_data[bullet_data.ROTATION].resize(preloaded_pool_size)
-	_bullet_data[bullet_data.LIFETIME].resize(preloaded_pool_size)
-	_bullet_data[bullet_data.SPEED].resize(preloaded_pool_size)
-	_bullet_data[bullet_data.SIZE].resize(preloaded_pool_size)
+	for type in bullet_data.size():
+		_bullet_data[type].resize(preloaded_pool_size)
 
 	_dead_bullets.resize(preloaded_pool_size)
-	_bullet_data[bullet_data.INSTANCE].resize(preloaded_pool_size)
-	_bullet_data[bullet_data.SPRITE_INDEX].resize(preloaded_pool_size)
-
-	multimesh.instance_count = preloaded_pool_size#20000 #observed frame rate limit
+	multimesh.instance_count = preloaded_pool_size
 	_pool_size = preloaded_pool_size
 
 	for index in preloaded_pool_size: #delete comments on test success
@@ -317,7 +308,7 @@ func ResetPoolSize() -> void: #reset and fill arrays
 		_bullet_data[bullet_data.COLLISION_GROUP][index] = 0
 		_bullet_data[bullet_data.LIFETIME][index] = 0
 		_bullet_data[bullet_data.INSTANCE][index] = 1
-		#_bullet_data[bullet_data.POSITION][index] = _vector2_right
+		#_bullet_data[bullet_data.POSITION][index] = Vector2.ZERO
 		#_bullet_data[bullet_data.ROTATION]
 		#_bullet_data[bullet_data.SIZE]
 		#_bullet_data[bullet_data.SPEED]
@@ -325,12 +316,12 @@ func ResetPoolSize() -> void: #reset and fill arrays
 		_dead_bullets[index] = index
 
 
-##Instantly hides all bullets
+##Instantly removes all bullets
 func NukeGameBullets() -> void:
 	_ClearBullets(true)
 
 
-##Clears bullets slowly, more visually appealing. Keep in mind this will disable all bullets
+##Clears bullets slowly, more visually appealing. Keep in mind this will disable process and shooting
 func ClearGameBullets() ->void:
 	_allow_shooting = false
 	_paused = true
