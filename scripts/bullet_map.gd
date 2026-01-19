@@ -61,6 +61,7 @@ func _ready() -> void:
 		sprite_size /= _atlas_size
 
 	_SetupMovementBuckets()
+	_SetupBulletData()
 	ResetPoolSize() #Bullets depend on movement buckets, this has to go AFTER buckets initialization
 
 
