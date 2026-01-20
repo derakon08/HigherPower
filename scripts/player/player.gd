@@ -62,7 +62,8 @@ func _physics_process(delta: float) -> void:
 	focus = Input.is_action_pressed("focus")
 
 	position += velocity.normalized() * (focus_speed if focus else normal_speed) * delta
-	
+
+func _process(delta: float) -> void:
 	if (_bomb_ready && Input.is_action_just_pressed("ship_action") && bomb_cooldown_timer.is_stopped()):
 		_ShipAction()
 	elif (allow_shooting && Input.is_action_pressed("shoot") && _vulnerable):

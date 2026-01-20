@@ -127,8 +127,8 @@ func _IncreaseMultimeshInstanceCount():
 		multimesh.set_instance_custom_data(
 			index,
 			Color(
-				(_bullet_data[bullet_data.SPRITE_INDEX][index] % _sprites_per_atlas_row) * sprite_size.x,
-				(_bullet_data[bullet_data.SPRITE_INDEX][index] / _sprites_per_atlas_row) * sprite_size.y,
+				(_bullet_data[bullet_data.SPRITE_INDEX][index] % _sprites_per_atlas_row),
+				(_bullet_data[bullet_data.SPRITE_INDEX][index] / _sprites_per_atlas_row),
 				sprite_size.x,
 				sprite_size.y
 			))
@@ -264,8 +264,8 @@ func Shoot(bullet_position : Vector2, bullet_speed : float, bullet_lifetime : fl
 	multimesh.set_instance_custom_data(
 		i,
 		Color(
-			(sprite_in_atlas % _sprites_per_atlas_row) * sprite_size.x,
-			(sprite_in_atlas / _sprites_per_atlas_row) * sprite_size.y,
+			(sprite_in_atlas % _sprites_per_atlas_row),
+			(sprite_in_atlas / _sprites_per_atlas_row),
 			sprite_size.x,
 			sprite_size.y
 		))
@@ -418,10 +418,4 @@ func _MovementDefault(bucket_index : int) -> void:
 
 func DEBUG():
 	print("----------BULLETMAP-----------------BULLETMAP--------------BULLETMAP---------------")
-	print("pool size: ", _pool_size)
-	print("collision groups: ", _collision_groups)
-	print("Collision group nodes: ", _collision_group_nodes)
-	print("Collision group radii", _collision_group_node_radius)
-	print("Collision groups nodes positions: ", _collision_group_node_positions)
-	breakpoint
-	
+	print(_sprites_per_atlas_row)
