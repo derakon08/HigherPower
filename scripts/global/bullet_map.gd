@@ -168,16 +168,19 @@ func _ChangeBulletMovementType(bullet_index : int, movement : MovementType) -> v
 
 
 func _ClearBullets(kill : bool = false) -> void:
-	_dead_bullets.clear()
+	_allow_shooting = false
+	_paused = true
 
 	for index in _pool_size:
 		if (_bullet_data[bullet_data.LIFETIME][index] > 0):
 			multimesh.set_instance_transform_2d(index, _spare_transform * 0)
 			_bullet_data[bullet_data.LIFETIME][index] = -1
-			if !kill: 
+			if !kill && index % 2 == 0:
 				await get_tree().process_frame
 
-	_pool_size = 100
+	_allow_shooting = true
+	_paused = false
+
 	spawner_cleared.emit()
 
 
@@ -318,18 +321,12 @@ func ResetPoolSize() -> void: #reset and fill arrays
 
 ##Instantly removes all bullets
 func NukeGameBullets() -> void:
-	_ClearBullets(true)
+	_ClearBullets.call_deferred(true)
 
 
 ##Clears bullets slowly, more visually appealing. Keep in mind this will disable process and shooting
 func ClearGameBullets() ->void:
-	_allow_shooting = false
-	_paused = true
-
-	_ClearBullets(false)
-
-	_allow_shooting = true
-	_paused = false
+	_ClearBullets.call_deferred(false)
 
 
 func AddNewCollisionGroup(group_name : String) -> void:
