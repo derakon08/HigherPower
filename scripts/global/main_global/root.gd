@@ -37,12 +37,14 @@ func _ready() -> void:
 	_player_fire_rate = player.fire_rate
 	_transition_node_abs_path = get_node("NonPausable/Control/Transitions").get_path()
 	screen_slots = get_node("Pauseable/Control/ScreenSlots").get_path()
+	game_area = $MainCamera.get_viewport().get_visible_rect()
+
+	BulletMap.AddNewCollisionGroup("enemies")
 
 	world_freeze_timer.timeout.connect(unfreeze_world.emit)
 
 	if (!debug):
 		player.Switch(false)
-		game_area = $MainCamera.get_viewport().get_visible_rect()
 		LoadNode("res://scenes/main_menu/main_menu.tscn", false)
 	else:
 		player.Switch(true)
@@ -73,8 +75,7 @@ func _input(event: InputEvent) -> void:
 
 func _notification(what):
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
-		if debug: Savestate.WipeData()
-		get_tree().quit()
+		_GameClose()
 
 
 #global methods
@@ -106,6 +107,7 @@ func LoadNode(path : String, can_pause : bool) -> void:
 		$Pauseable.add_child(scene_instance)
 
 		if scene_instance.is_in_group("game_level"):
+			_current_level_node.queue_free()
 			_current_level_node = get_node("Pauseable/" + scene_instance.name)
 			_current_level_scene = path
 
@@ -131,7 +133,6 @@ func GameEnd() -> void:
 		return
 
 	LoadNode("res://scenes/main_menu/main_menu.tscn", false)
-	_current_level_node.queue_free()
 	_ResumeGame()
 	_game_state_flag = game_state.ON_MENU
 	player.Switch(false)
@@ -162,3 +163,11 @@ func _ResumeGame() -> void:
 	_game_state_flag = game_state.ON_GAME
 	pause_menu.visible = false
 	$Pauseable.process_mode = Node.PROCESS_MODE_PAUSABLE
+
+func _GameClose() -> void:
+	if debug: Savestate.WipeData()
+
+	FadeModulator.ShowNodeAtSafe(transition_decor)
+	await FadeModulator.AwaitOpaque(transition_decor)
+
+	get_tree().quit()

@@ -10,6 +10,9 @@ func _ready() -> void:
 	_LoadLevelButtons()
 	tabs_node.current_tab = -1 #Set to empty
 
+	$MarginContainer/HBoxContainer/MenuButtons/Quit.pressed.connect(Main._GameClose)
+
+
 func _button_pressed(index : int): #This one takes an assigned button index and loads the corresponding tab in the sidebar
 	var node = tabs_node.get_child(index)
 
@@ -43,9 +46,7 @@ func _LoadLevelButtons():
 	
 	if Savestate.AllLevelsClear():
 		get_node("MarginContainer/HBoxContainer/MenuButtons/Prologue").visible = true
-
-func _ConnectSignals():
-	pass
+		
 
 func SelfDestructButton():
 	$SelfDestruct.queue_free()
