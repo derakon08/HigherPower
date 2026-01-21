@@ -49,6 +49,7 @@ func _ready() -> void:
 	_transition_node.end_of_pool.connect(Main.InvertBackgroundColor)
 	_transition_node.end_of_pool.connect(player_bomb_end.emit)
 	invinsibility_timer.timeout.connect(Vulnerable.bind(true))
+	bomb_cooldown_timer.timeout.connect(BombReady.bind(true))
 	player_bomb_start.connect(BulletMap.ClearGameBullets)
 	player_bomb_end.connect(BulletMap.NukeGameBullets)
 
@@ -59,7 +60,7 @@ func _physics_process(delta: float) -> void:
 	position += velocity * (focus_speed if focus else normal_speed) * delta
 
 func _process(delta: float) -> void:
-	if (_bomb_ready && Input.is_action_just_pressed("ship_action") && bomb_cooldown_timer.is_stopped()):
+	if (_bomb_ready && Input.is_action_just_pressed("ship_action")):
 		_ShipAction()
 	elif (allow_shooting && Input.is_action_pressed("shoot") && _vulnerable):
 		_to_be_fired += fire_rate * delta
@@ -68,9 +69,11 @@ func _process(delta: float) -> void:
 		_to_be_fired = 0
 
 func _ShipAction():
+	_bomb_ready = false
 	Vulnerable(false)
-	bomb_cooldown_timer.start()
 	shoot_mode = !_shoot_mode
+
+	bomb_cooldown_timer.start()
 	player_bomb_start.emit()
 	_transition_node.AllowShooting()
 
@@ -91,6 +94,9 @@ func Vulnerable(on : bool):
 	_vulnerable = on
 
 func BombReady(on = true):
+	if on && !Main.narrator.IsTalking():
+		Main.narrator.Talk("Warp ready.")
+	
 	_bomb_ready = on
 
 func _ModeOne():
