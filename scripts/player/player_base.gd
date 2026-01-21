@@ -7,12 +7,8 @@ extends Area2D
 @export var bullet_speed : float = 2000
 @export var bullet_distance : float = 2
 
-var focus = false
-var allow_shooting : bool = true
-
-var _Shoot : Callable = Callable(_ModeOne)
-var _shoot_mode : bool = true
-var shoot_mode : bool = true:
+##This's been exported since i NEED the setter to activate
+@export var shoot_mode : bool:
 	set (value):
 		_shoot_mode = value
 
@@ -22,6 +18,12 @@ var shoot_mode : bool = true:
 			_Shoot = _ModeTwo
 	get:
 		return _shoot_mode
+
+var focus = false
+var allow_shooting : bool = true
+
+var _Shoot : Callable = Callable(_ModeOne)
+var _shoot_mode : bool
 
 var _to_be_fired : float
 var _transition_node : Node
@@ -46,6 +48,9 @@ func _ready() -> void:
 
 	_transition_node.end_of_pool.connect(Main.InvertBackgroundColor)
 	_transition_node.end_of_pool.connect(player_bomb_end.emit)
+	invinsibility_timer.timeout.connect(Vulnerable.bind(true))
+	player_bomb_start.connect(BulletMap.ClearGameBullets)
+	player_bomb_end.connect(BulletMap.NukeGameBullets)
 
 func _physics_process(delta: float) -> void:
 	var velocity : Vector2 = Input.get_vector("left", "right", "up", "down")
@@ -73,7 +78,6 @@ func Hit():
 	if _vulnerable:
 		Vulnerable(false)
 		_particle_explosion.emitting = true
-		invinsibility_timer.start()
 		player_hit.emit()
 
 func Switch(on : bool):
@@ -81,6 +85,9 @@ func Switch(on : bool):
 	self.visible = on
 
 func Vulnerable(on : bool):
+	if !on:
+		invinsibility_timer.start()
+
 	_vulnerable = on
 
 func BombReady(on = true):
