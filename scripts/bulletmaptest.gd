@@ -1,6 +1,7 @@
 extends Node2D
 @export var fire_rate : float
 @export var bullet_density : int #number of bullets in the wall
+@export var bullet_size : float = 50
 
 var  _bullets_max_angle : float
 @export var bullets_max_angle : float:
@@ -29,7 +30,7 @@ func _process(delta: float) -> void:
 
 		for bullet in bullet_density:
 			temp_angle += _spacing
-			BulletMap.Shoot(global_position, 10, 120, temp_angle, 50, "dummy", sprite, 5 * 0.001)
+			BulletMap.Shoot(global_position, 10, 120, temp_angle, bullet_size, "dummy", sprite, 5 * 0.001)
 
 func Hit():
 	pass
