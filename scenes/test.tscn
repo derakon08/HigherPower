@@ -46,39 +46,53 @@ angular_velocity = -190.0
 bullet_max_distance = 750.0
 bullet_size = 20.0
 
-[node name="SimpleShapeSpawner3" parent="." instance=ExtResource("1_f7eab")]
-position = Vector2(977.9094, 851.93896)
-texture = ExtResource("3_xg76t")
-bullet_density = 50
-bullets_max_angle = 360.0
-stream_number = 1
-fire_rate = 5.0
-wait_between_spawns = 0.5
-spawn_offset = Vector2(20, 20)
-auto_start = true
-allow_collision = false
-position_peaks = 5
-max_peaks_value = 200.0
-position_min_peaks_value = -1.0
-peak_sharpness = 3.0
-position_preset = 3
-stream_start_speed = 500.0
-bullet_max_distance = 100.0
-bullet_size = 20.0
-clip_bullets = true
-
 [node name="Node2D" type="Node2D" parent="."]
 position = Vector2(294.54553, 127.40578)
 script = ExtResource("5_j5jx5")
+bullet_density = 50
+fire_rate = 5.0
+spawn_offset = Vector2(100, 10)
+auto_start = true
+bullets_max_angle = 360.0
+stream_start_speed = 100.0
+bullet_max_distance = 5.0
+bullet_size = 50.0
+bullet_sprite = 3
 
 [node name="Node2D2" type="Node2D" parent="."]
 position = Vector2(720.6788, 127.40578)
 script = ExtResource("5_j5jx5")
+bullet_density = 50
+fire_rate = 5.0
+spawn_offset = Vector2(100, 10)
+auto_start = true
+bullets_max_angle = 360.0
+stream_start_speed = 100.0
+bullet_max_distance = 5.0
+bullet_size = 50.0
 
 [node name="Node2D3" type="Node2D" parent="."]
 position = Vector2(1231.2941, 116.68782)
 script = ExtResource("5_j5jx5")
+bullet_density = 50
+fire_rate = 5.0
+spawn_offset = Vector2(100, 10)
+auto_start = true
+bullets_max_angle = 360.0
+stream_start_speed = 100.0
+bullet_max_distance = 5.0
+bullet_size = 50.0
+bullet_sprite = 6
 
 [node name="Node2D4" type="Node2D" parent="."]
 position = Vector2(1653.1401, 118.831406)
 script = ExtResource("5_j5jx5")
+bullet_density = 50
+fire_rate = 5.0
+spawn_offset = Vector2(100, 10)
+auto_start = true
+bullets_max_angle = 360.0
+stream_start_speed = 100.0
+bullet_max_distance = 5.0
+bullet_size = 50.0
+bullet_sprite = 10

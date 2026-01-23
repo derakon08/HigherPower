@@ -415,4 +415,5 @@ func _MovementDefault(bucket_index : int) -> void:
 
 func DEBUG():
 	print("----------BULLETMAP-----------------BULLETMAP--------------BULLETMAP---------------")
-	print(_sprites_per_atlas_row)
+	print(_pool_size)
+
