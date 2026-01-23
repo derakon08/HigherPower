@@ -1,0 +1,46 @@
+[gd_scene load_steps=6 format=3 uid="uid://56un2m6sh4oe"]
+
+[ext_resource type="Texture2D" uid="uid://hes4lhwik357" path="res://.images/sprite_animations/tutorial_single_button.png" id="1_yytdi"]
+[ext_resource type="Theme" uid="uid://po03rpmxg6y8" path="res://.images/themes/main.tres" id="2_qlh3v"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_mg50d"]
+atlas = ExtResource("1_yytdi")
+region = Rect2(0, 0, 205, 50)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_fv6md"]
+atlas = ExtResource("1_yytdi")
+region = Rect2(0, 100, 205, 50)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_v063n"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_mg50d")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_fv6md")
+}],
+"loop": true,
+"name": &"default",
+"speed": 2.0
+}]
+
+[node name="basic_focus_tutorial" type="AnimatedSprite2D"]
+texture_filter = 1
+sprite_frames = SubResource("SpriteFrames_v063n")
+autoplay = "default"
+frame_progress = 0.20785
+
+[node name="Label" type="Label" parent="."]
+texture_filter = 2
+anchors_preset = -1
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -181.5
+offset_top = -105.0
+offset_right = -10.5
+offset_bottom = -54.0
+theme = ExtResource("2_qlh3v")
+text = "Focus"

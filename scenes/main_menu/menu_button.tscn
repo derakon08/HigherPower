@@ -1,0 +1,51 @@
+[gd_scene load_steps=6 format=3 uid="uid://rglymhr5o6ax"]
+
+[ext_resource type="Theme" uid="uid://po03rpmxg6y8" path="res://images/themes/main.tres" id="1_2y7fj"]
+[ext_resource type="Texture2D" uid="uid://cwv4a6yud63ag" path="res://images/backgrounds/button.png" id="2_xg6f0"]
+[ext_resource type="Script" uid="uid://c1gqu2rsgbykh" path="res://scripts/main_menu/menu_button.gd" id="2_xpsiq"]
+[ext_resource type="Texture2D" uid="uid://bf6u8kkm5yox3" path="res://images/backgrounds/button1.png" id="3_2swxr"]
+[ext_resource type="Texture2D" uid="uid://bubxdiuilho4k" path="res://images/bullets/arrows/arrow.png" id="4_f2oq5"]
+
+[node name="Button" type="Button" groups=["menu_button"]]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 2
+theme = ExtResource("1_2y7fj")
+text = "EXAMPLE_BUTTON"
+flat = true
+icon_alignment = 1
+expand_icon = true
+text_direction = 1
+language = "en"
+script = ExtResource("2_xpsiq")
+highlighted_texture = ExtResource("2_xg6f0")
+overshadowed_texture = ExtResource("3_2swxr")
+pointer_texture = ExtResource("4_f2oq5")
+button_height = 100.0
+
+[node name="Textures" type="HBoxContainer" parent="."]
+show_behind_parent = true
+layout_direction = 2
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Pointer" type="TextureRect" parent="Textures"]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 0
+expand_mode = 1
+stretch_mode = 4
+
+[node name="Icon" type="NinePatchRect" parent="Textures"]
+layout_mode = 2
+size_flags_horizontal = 3
+patch_margin_right = 9

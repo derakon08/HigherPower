@@ -1,0 +1,327 @@
+[gd_scene load_steps=26 format=3 uid="uid://d3lmgfqiwmgec"]
+
+[ext_resource type="Theme" uid="uid://po03rpmxg6y8" path="res://images/themes/main.tres" id="1_fpuln"]
+[ext_resource type="Script" uid="uid://bgd24m0ca3hi2" path="res://scripts/main_menu/main_menu.gd" id="2_7630i"]
+[ext_resource type="Shader" uid="uid://dgjqu8kde3ft5" path="res://images/shaders/scroll.gdshader" id="5_xcars"]
+[ext_resource type="Texture2D" uid="uid://cgi3l5prgauh3" path="res://images/backgrounds/bhalbackground.png" id="6_arbct"]
+[ext_resource type="PackedScene" uid="uid://rglymhr5o6ax" path="res://scenes/main_menu/menu_button.tscn" id="6_tov6w"]
+[ext_resource type="Texture2D" uid="uid://bdblcegj8rd3j" path="res://icon1.png" id="7_63bow"]
+[ext_resource type="Texture2D" uid="uid://bqkrdqjpahvul" path="res://images/sprite_animations/movement_keys_tutorial.png" id="9_0ilth"]
+[ext_resource type="Texture2D" uid="uid://hes4lhwik357" path="res://images/sprite_animations/tutorial_single_button.png" id="10_3p5so"]
+[ext_resource type="Texture2D" uid="uid://masdd1eq2j3r" path="res://images/sprite_animations/ship_action_tutorial.png" id="11_tjrb7"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_tlf28"]
+shader = ExtResource("5_xcars")
+shader_parameter/scroll_speed = 0.01
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qv47l"]
+atlas = ExtResource("9_0ilth")
+region = Rect2(0, 0, 500, 500)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6x4ds"]
+atlas = ExtResource("9_0ilth")
+region = Rect2(500, 0, 500, 500)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_dnqe0"]
+atlas = ExtResource("9_0ilth")
+region = Rect2(0, 500, 500, 500)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_e7g7c"]
+atlas = ExtResource("9_0ilth")
+region = Rect2(500, 500, 500, 500)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_af2j6"]
+atlas = ExtResource("9_0ilth")
+region = Rect2(500, 1000, 500, 500)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_lio4h"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_qv47l")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_6x4ds")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_qv47l")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_dnqe0")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_qv47l")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_e7g7c")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_qv47l")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_af2j6")
+}],
+"loop": true,
+"name": &"default",
+"speed": 2.0
+}]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_puol3"]
+atlas = ExtResource("10_3p5so")
+region = Rect2(5, 0, 200, 50)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_i3hme"]
+atlas = ExtResource("10_3p5so")
+region = Rect2(5, 100, 200, 50)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_2yhlr"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_puol3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_i3hme")
+}],
+"loop": true,
+"name": &"default",
+"speed": 2.0
+}]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_e36ty"]
+atlas = ExtResource("10_3p5so")
+region = Rect2(5, 50, 200, 50)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qj8jm"]
+atlas = ExtResource("10_3p5so")
+region = Rect2(5, 150, 200, 50)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_b6bmx"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_e36ty")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_qj8jm")
+}],
+"loop": true,
+"name": &"default",
+"speed": 2.0
+}]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jbtu0"]
+atlas = ExtResource("11_tjrb7")
+region = Rect2(0, 0, 450, 50)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3m6np"]
+atlas = ExtResource("11_tjrb7")
+region = Rect2(0, 50, 450, 50)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_e2rga"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_jbtu0")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_3m6np")
+}],
+"loop": true,
+"name": &"default",
+"speed": 2.0
+}]
+
+[node name="MainMenu" type="Control" node_paths=PackedStringArray("tabs_node", "tutorial_button") groups=["game_level"]]
+z_index = 1
+z_as_relative = false
+layout_direction = 2
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 1.0
+offset_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("1_fpuln")
+script = ExtResource("2_7630i")
+tabs_node = NodePath("MarginContainer/HBoxContainer/SidePanelMargin/SidePanel")
+tutorial_button = NodePath("MarginContainer/HBoxContainer/SidePanelMargin/SidePanel/Levels/Tutorial")
+
+[node name="Background" type="TextureRect" parent="."]
+self_modulate = Color(1, 1, 1, 0.482353)
+material = SubResource("ShaderMaterial_tlf28")
+layout_mode = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+texture = ExtResource("6_arbct")
+stretch_mode = 1
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+
+[node name="MenuButtons" type="VBoxContainer" parent="MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+
+[node name="Title" type="TextureRect" parent="MarginContainer/HBoxContainer/MenuButtons"]
+custom_minimum_size = Vector2(500, 300)
+layout_mode = 2
+size_flags_vertical = 2
+texture = ExtResource("7_63bow")
+stretch_mode = 2
+
+[node name="Start" parent="MarginContainer/HBoxContainer/MenuButtons" instance=ExtResource("6_tov6w")]
+layout_mode = 2
+text = "Start"
+
+[node name="Prologue" parent="MarginContainer/HBoxContainer/MenuButtons" instance=ExtResource("6_tov6w")]
+visible = false
+layout_mode = 2
+text = "Prologue"
+
+[node name="Controls" parent="MarginContainer/HBoxContainer/MenuButtons" instance=ExtResource("6_tov6w")]
+layout_mode = 2
+text = "Controls"
+
+[node name="Credits" parent="MarginContainer/HBoxContainer/MenuButtons" instance=ExtResource("6_tov6w")]
+layout_mode = 2
+text = "Credits"
+
+[node name="Quit" parent="MarginContainer/HBoxContainer/MenuButtons" instance=ExtResource("6_tov6w")]
+layout_mode = 2
+text = "Quit Game"
+
+[node name="SidePanelMargin" type="MarginContainer" parent="MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="SidePanel" type="TabContainer" parent="MarginContainer/HBoxContainer/SidePanelMargin"]
+self_modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+tabs_visible = false
+use_hidden_tabs_for_min_size = true
+deselect_enabled = true
+
+[node name="Levels" type="VBoxContainer" parent="MarginContainer/HBoxContainer/SidePanelMargin/SidePanel"]
+visible = false
+layout_mode = 2
+metadata/_tab_index = 0
+
+[node name="Tutorial" parent="MarginContainer/HBoxContainer/SidePanelMargin/SidePanel/Levels" instance=ExtResource("6_tov6w")]
+layout_mode = 2
+text = "Tutorial"
+
+[node name="LevelOne" parent="MarginContainer/HBoxContainer/SidePanelMargin/SidePanel/Levels" instance=ExtResource("6_tov6w")]
+layout_mode = 2
+text = "Level One"
+
+[node name="LevelTwo" parent="MarginContainer/HBoxContainer/SidePanelMargin/SidePanel/Levels" instance=ExtResource("6_tov6w")]
+layout_mode = 2
+text = "Level Two"
+
+[node name="LevelThree" parent="MarginContainer/HBoxContainer/SidePanelMargin/SidePanel/Levels" instance=ExtResource("6_tov6w")]
+layout_mode = 2
+text = "Level Three"
+
+[node name="LevelFour" parent="MarginContainer/HBoxContainer/SidePanelMargin/SidePanel/Levels" instance=ExtResource("6_tov6w")]
+layout_mode = 2
+text = "Level Four"
+
+[node name="LevelFive" parent="MarginContainer/HBoxContainer/SidePanelMargin/SidePanel/Levels" instance=ExtResource("6_tov6w")]
+layout_mode = 2
+text = "Level Five"
+
+[node name="Controls" type="VBoxContainer" parent="MarginContainer/HBoxContainer/SidePanelMargin/SidePanel"]
+visible = false
+layout_mode = 2
+metadata/_tab_index = 1
+
+[node name="LabelMove" type="Label" parent="MarginContainer/HBoxContainer/SidePanelMargin/SidePanel/Controls"]
+layout_mode = 2
+size_flags_vertical = 2
+text = "Move
+"
+horizontal_alignment = 1
+
+[node name="LabelFocus" type="Label" parent="MarginContainer/HBoxContainer/SidePanelMargin/SidePanel/Controls"]
+layout_mode = 2
+size_flags_vertical = 2
+text = "Focus
+"
+horizontal_alignment = 1
+
+[node name="LabelShoot" type="Label" parent="MarginContainer/HBoxContainer/SidePanelMargin/SidePanel/Controls"]
+layout_mode = 2
+size_flags_vertical = 2
+text = "Shoot
+"
+horizontal_alignment = 1
+
+[node name="LabelShipAction" type="Label" parent="MarginContainer/HBoxContainer/SidePanelMargin/SidePanel/Controls"]
+layout_mode = 2
+size_flags_vertical = 2
+text = "Skill
+"
+horizontal_alignment = 1
+
+[node name="MovementControls" type="AnimatedSprite2D" parent="MarginContainer/HBoxContainer/SidePanelMargin/SidePanel/Controls"]
+position = Vector2(380, 119)
+sprite_frames = SubResource("SpriteFrames_lio4h")
+autoplay = "default"
+
+[node name="FocusControls" type="AnimatedSprite2D" parent="MarginContainer/HBoxContainer/SidePanelMargin/SidePanel/Controls"]
+position = Vector2(380, 381)
+sprite_frames = SubResource("SpriteFrames_2yhlr")
+autoplay = "default"
+
+[node name="ShootControls" type="AnimatedSprite2D" parent="MarginContainer/HBoxContainer/SidePanelMargin/SidePanel/Controls"]
+position = Vector2(380, 608)
+sprite_frames = SubResource("SpriteFrames_b6bmx")
+autoplay = "default"
+
+[node name="ShipActionControls" type="AnimatedSprite2D" parent="MarginContainer/HBoxContainer/SidePanelMargin/SidePanel/Controls"]
+position = Vector2(380, 850)
+sprite_frames = SubResource("SpriteFrames_e2rga")
+autoplay = "default"
+
+[node name="Credits" type="VBoxContainer" parent="MarginContainer/HBoxContainer/SidePanelMargin/SidePanel"]
+visible = false
+layout_mode = 2
+metadata/_tab_index = 2
+
+[node name="Label" type="Label" parent="MarginContainer/HBoxContainer/SidePanelMargin/SidePanel/Credits"]
+layout_mode = 2
+size_flags_vertical = 6
+text = "Made by SoftFalls
+Font roboto-classic from google fonts
+Special thanks to everyone who  me"
+horizontal_alignment = 1
+
+[node name="SelfDestruct" type="Control" parent="."]
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+focus_mode = 2
+
+[connection signal="pressed" from="MarginContainer/HBoxContainer/MenuButtons/Start" to="." method="_button_pressed" binds= [0]]
+[connection signal="pressed" from="MarginContainer/HBoxContainer/MenuButtons/Prologue" to="." method="_level_button_pressed" binds= ["prologue"]]
+[connection signal="pressed" from="MarginContainer/HBoxContainer/MenuButtons/Controls" to="." method="_button_pressed" binds= [1]]
+[connection signal="pressed" from="MarginContainer/HBoxContainer/MenuButtons/Credits" to="." method="_button_pressed" binds= [2]]
+[connection signal="pressed" from="MarginContainer/HBoxContainer/SidePanelMargin/SidePanel/Levels/Tutorial" to="." method="_level_button_pressed" binds= ["tutorial_a"]]
+[connection signal="pressed" from="MarginContainer/HBoxContainer/SidePanelMargin/SidePanel/Levels/LevelOne" to="." method="_level_button_pressed" binds= ["level_1"]]
+[connection signal="pressed" from="MarginContainer/HBoxContainer/SidePanelMargin/SidePanel/Levels/LevelTwo" to="." method="_level_button_pressed" binds= ["level_2"]]
+[connection signal="pressed" from="MarginContainer/HBoxContainer/SidePanelMargin/SidePanel/Levels/LevelThree" to="." method="_level_button_pressed" binds= ["level_3"]]
+[connection signal="pressed" from="MarginContainer/HBoxContainer/SidePanelMargin/SidePanel/Levels/LevelFour" to="." method="_level_button_pressed" binds= ["level_4"]]
+[connection signal="pressed" from="MarginContainer/HBoxContainer/SidePanelMargin/SidePanel/Levels/LevelFive" to="." method="_level_button_pressed" binds= ["level_5"]]
+[connection signal="focus_exited" from="SelfDestruct" to="." method="SelfDestructButton"]

@@ -1,0 +1,23 @@
+[gd_scene load_steps=7 format=3 uid="uid://bigb3hpc32bmt"]
+
+[ext_resource type="Shader" uid="uid://0cjwbx4qs260" path="res://images/shaders/atlas_shade.gdshader" id="1_ly6d0"]
+[ext_resource type="Script" uid="uid://bqxnthnxhfjci" path="res://scripts/global/bullet_map.gd" id="2_lahvb"]
+[ext_resource type="Texture2D" uid="uid://ddvwppryxxa55" path="res://images/bullets/atlas.png" id="2_ly6d0"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_fhios"]
+shader = ExtResource("1_ly6d0")
+
+[sub_resource type="QuadMesh" id="QuadMesh_lb1ev"]
+
+[sub_resource type="MultiMesh" id="MultiMesh_lahvb"]
+use_custom_data = true
+mesh = SubResource("QuadMesh_lb1ev")
+
+[node name="BulletMap" type="MultiMeshInstance2D"]
+top_level = true
+z_index = 50
+material = SubResource("ShaderMaterial_fhios")
+multimesh = SubResource("MultiMesh_lahvb")
+texture = ExtResource("2_ly6d0")
+script = ExtResource("2_lahvb")
+sprite_size = Vector2(500, 500)

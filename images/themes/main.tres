@@ -1,0 +1,50 @@
+[gd_resource type="Theme" load_steps=7 format=3 uid="uid://po03rpmxg6y8"]
+
+[ext_resource type="FontFile" uid="uid://b4ybgu1b6qqho" path="res://images/font/Hepta_Slab,Roboto/Roboto/Roboto-VariableFont_wdth,wght.ttf" id="1_nrqii"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_0osjs"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_14dw7"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_7rof1"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_hqkbc"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_w6nto"]
+
+[resource]
+Button/colors/font_color = Color(0, 0, 0, 1)
+Button/colors/font_disabled_color = Color(0.875, 0.875, 0.875, 0.5)
+Button/colors/font_focus_color = Color(0, 0, 0, 1)
+Button/colors/font_hover_color = Color(0, 0, 0, 1)
+Button/colors/font_hover_pressed_color = Color(0, 0, 0, 1)
+Button/colors/font_outline_color = Color(1, 1, 1, 1)
+Button/colors/font_pressed_color = Color(0, 0, 0, 1)
+Button/colors/icon_disabled_color = Color(1, 1, 1, 0)
+Button/colors/icon_focus_color = Color(1, 1, 1, 0)
+Button/colors/icon_hover_color = Color(1, 1, 1, 0)
+Button/colors/icon_hover_pressed_color = Color(1, 1, 1, 0)
+Button/colors/icon_normal_color = Color(1, 1, 1, 0)
+Button/colors/icon_pressed_color = Color(1, 1, 1, 0)
+Button/constants/align_to_largest_stylebox = 0
+Button/constants/h_separation = 4
+Button/constants/icon_max_width = 0
+Button/constants/outline_size = 3
+Button/font_sizes/font_size = 40
+Button/fonts/font = ExtResource("1_nrqii")
+Button/styles/disabled = SubResource("StyleBoxEmpty_0osjs")
+Button/styles/focus = SubResource("StyleBoxEmpty_14dw7")
+Button/styles/hover = SubResource("StyleBoxEmpty_7rof1")
+Button/styles/normal = SubResource("StyleBoxEmpty_hqkbc")
+Button/styles/pressed = SubResource("StyleBoxEmpty_w6nto")
+Label/colors/font_color = Color(0, 0, 0, 1)
+Label/colors/font_outline_color = Color(1, 1, 1, 1)
+Label/constants/line_spacing = 7
+Label/constants/outline_size = 3
+Label/font_sizes/font_size = 40
+Label/fonts/font = null
+MarginContainer/constants/margin_bottom = 50
+MarginContainer/constants/margin_left = 70
+MarginContainer/constants/margin_right = 70
+MarginContainer/constants/margin_top = 45
+VBoxContainer/constants/separation = 20

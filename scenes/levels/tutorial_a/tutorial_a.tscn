@@ -1,0 +1,119 @@
+[gd_scene load_steps=7 format=3 uid="uid://oggjrj0iy0sn"]
+
+[ext_resource type="Script" uid="uid://b0e5x2aqun61k" path="res://scripts/levels/tutorial_a/tutorialA.gd" id="1_888tt"]
+[ext_resource type="Script" uid="uid://d1x06mmt77ahw" path="res://scripts/basic_path_finder.gd" id="2_3x8uy"]
+[ext_resource type="PackedScene" uid="uid://dg5cjrt6ero4q" path="res://scenes/spawners/simple_shape_spawner.tscn" id="2_gpuqm"]
+[ext_resource type="Texture2D" uid="uid://di6ox0eax6hwc" path="res://images/bullets/bullets/bullet.png" id="4_pidxg"]
+[ext_resource type="Texture2D" uid="uid://bubxdiuilho4k" path="res://images/bullets/arrows/arrow.png" id="5_npwbj"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_xi4vb"]
+size = Vector2(36, 67)
+
+[node name="TutorialA" type="Node2D" node_paths=PackedStringArray("all_seeing_attacks", "check_status", "close_in", "close_in2") groups=["game_level"]]
+script = ExtResource("1_888tt")
+trial_time = 1
+peak_increase = 2
+all_seeing_attacks = NodePath("AllSeeing/Pattern")
+check_status = NodePath("CheckStatus")
+close_in = NodePath("CloseIn")
+close_in2 = NodePath("CloseIn2")
+
+[node name="AllSeeing" type="Area2D" parent="." node_paths=PackedStringArray("directions_node")]
+position = Vector2(950, 531.931)
+collision_layer = 2
+collision_mask = 0
+monitoring = false
+monitorable = false
+script = ExtResource("2_3x8uy")
+wait_to_move = true
+speed = 50.0
+directions_node = NodePath("DirNode")
+life = 200
+
+[node name="visible_body" parent="AllSeeing" instance=ExtResource("2_gpuqm")]
+bullet_density = 10
+bullets_max_angle = 360.0
+stream_number = 1
+fire_rate = 100.0
+angle_between_spawns = 5.0
+spawn_offset = Vector2(30, 0)
+auto_start = true
+position_peaks = 5
+max_peaks_value = 30.0
+stream_start_speed = 0.1
+angular_velocity = -100.0
+bullet_max_distance = 0.001
+bullet_size = 30.0
+
+[node name="Pattern" parent="AllSeeing" instance=ExtResource("2_gpuqm")]
+texture = ExtResource("4_pidxg")
+bullet_density = 9
+bullets_max_angle = 360.0
+stream_number = 1
+fire_rate = 1.0
+angle_between_spawns = 50.99
+spawn_offset = Vector2(50, 0)
+delay_spawns = true
+position_peaks = 5
+max_peaks_value = 100.0
+movement_peaks = 4
+movement_waves_frequency = 2.0
+movement_speed_change = 300.0
+movement_preset = 6
+stream_start_speed = 230.0
+angular_velocity = 5.0
+bullet_max_distance = 3500.0
+bullet_size = 20.0
+clip_bullets = true
+
+[node name="DirNode" type="Node" parent="AllSeeing"]
+
+[node name="Node2D" type="Node2D" parent="AllSeeing/DirNode"]
+position = Vector2(960, 76)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="AllSeeing"]
+position = Vector2(-0.351746, -18.4309)
+shape = SubResource("RectangleShape2D_xi4vb")
+
+[node name="CloseIn" parent="." instance=ExtResource("2_gpuqm")]
+position = Vector2(100, 0)
+rotation = 1.5708
+texture = ExtResource("5_npwbj")
+bullet_density = 50
+bullets_max_angle = 360.0
+stream_number = 1
+fire_rate = 50.0
+angle_between_spawns = 10.0
+max_peaks_value = 100.0
+elipse_shape = Vector2(300, 20)
+position_preset = 5
+rotation_preset = 1
+stream_start_speed = 300.0
+bullet_max_distance = 1000.0
+bullet_size = 50.0
+clip_bullets = true
+
+[node name="CloseIn2" parent="." instance=ExtResource("2_gpuqm")]
+position = Vector2(1800, 0)
+rotation = 1.5708
+texture = ExtResource("5_npwbj")
+bullet_density = 50
+bullets_max_angle = 360.0
+stream_number = 1
+fire_rate = 50.0
+angle_between_spawns = 10.0
+max_peaks_value = 100.0
+elipse_shape = Vector2(300, 20)
+position_preset = 5
+rotation_preset = 1
+stream_start_speed = 300.0
+bullet_max_distance = 1000.0
+bullet_size = 50.0
+clip_bullets = true
+
+[node name="CheckStatus" type="Timer" parent="."]
+wait_time = 5.0
+one_shot = true
+
+[node name="Spawn" type="Node2D" parent="."]
+position = Vector2(950, 952.09)

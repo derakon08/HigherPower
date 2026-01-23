@@ -1,0 +1,38 @@
+[gd_scene load_steps=6 format=3 uid="uid://r26offssaooi"]
+
+[ext_resource type="Texture2D" uid="uid://masdd1eq2j3r" path="res://images/sprite_animations/ship_action_tutorial.png" id="1_k7om8"]
+[ext_resource type="Theme" uid="uid://po03rpmxg6y8" path="res://images/themes/main.tres" id="2_4aa3e"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_423y6"]
+atlas = ExtResource("1_k7om8")
+region = Rect2(0, 0, 446, 50)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_664qt"]
+atlas = ExtResource("1_k7om8")
+region = Rect2(0, 50, 446, 50)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_u05nf"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_423y6")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_664qt")
+}],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}]
+
+[node name="ShipActionTutorial" type="AnimatedSprite2D"]
+sprite_frames = SubResource("SpriteFrames_u05nf")
+autoplay = "default"
+
+[node name="Label" type="Label" parent="."]
+offset_left = -80.0
+offset_top = -83.0
+offset_right = 63.0
+offset_bottom = -28.0
+theme = ExtResource("2_4aa3e")
+text = "Just Call"

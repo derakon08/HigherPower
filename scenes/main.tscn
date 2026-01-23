@@ -1,0 +1,366 @@
+[gd_scene load_steps=14 format=3 uid="uid://bqllgswh8xclm"]
+
+[ext_resource type="Script" uid="uid://bijj3vamkju10" path="res://scripts/global/main_global/root.gd" id="1_svajf"]
+[ext_resource type="Script" uid="uid://bw7trhpmccp5r" path="res://scripts/global/main_global/border.gd" id="2_gt6x5"]
+[ext_resource type="Script" uid="uid://picdb5dyejwv" path="res://scripts/global/main_global/narrator.gd" id="2_y3nam"]
+[ext_resource type="PackedScene" uid="uid://qs3ddtyyqy7s" path="res://scenes/player/player.tscn" id="3_xlgo8"]
+[ext_resource type="Theme" uid="uid://po03rpmxg6y8" path="res://images/themes/main.tres" id="4_bjykd"]
+[ext_resource type="PackedScene" uid="uid://rglymhr5o6ax" path="res://scenes/main_menu/menu_button.tscn" id="7_6qorx"]
+[ext_resource type="Shader" uid="uid://dgjqu8kde3ft5" path="res://images/shaders/scroll.gdshader" id="7_11dsn"]
+[ext_resource type="Texture2D" uid="uid://cgi3l5prgauh3" path="res://images/backgrounds/bhalbackground.png" id="8_23b27"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_4xefw"]
+size = Vector2(2019, 95.0309)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_m2vlu"]
+size = Vector2(2201, 95.7035)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_nivmx"]
+size = Vector2(92.2945, 1250)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_xj5o2"]
+size = Vector2(95.7802, 1208)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_bouti"]
+shader = ExtResource("7_11dsn")
+shader_parameter/scroll_speed = 0.01
+
+[node name="main" type="Node2D" node_paths=PackedStringArray("player", "pause_menu", "bg", "transition_decor", "narrator", "world_freeze_timer")]
+process_mode = 3
+script = ExtResource("1_svajf")
+player = NodePath("Pauseable/Player")
+pause_menu = NodePath("NonPausable/Control/PauseMenu")
+bg = NodePath("BG")
+transition_decor = NodePath("NonPausable/Control/Transitions")
+narrator = NodePath("Pauseable/Control/Narrator")
+world_freeze_timer = NodePath("NonPausable/Unfreeze")
+debug = true
+
+[node name="BG" type="ColorRect" parent="."]
+show_behind_parent = true
+offset_left = -150.0
+offset_top = -110.0
+offset_right = 2115.0
+offset_bottom = 1182.0
+
+[node name="Pauseable" type="Node" parent="."]
+process_mode = 1
+
+[node name="Player" parent="Pauseable" instance=ExtResource("3_xlgo8")]
+visible = false
+position = Vector2(973.185, 928.257)
+collision_mask = 0
+bullet_speed = 1500.0
+bullet_distance = 2000.0
+
+[node name="Control" type="Control" parent="Pauseable"]
+top_level = true
+z_index = 101
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme = ExtResource("4_bjykd")
+
+[node name="Narrator" type="VBoxContainer" parent="Pauseable/Control" node_paths=PackedStringArray("narration_box")]
+top_level = true
+z_index = 101
+layout_direction = 2
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+alignment = 1
+script = ExtResource("2_y3nam")
+narration_box = NodePath("NarrationBox")
+text_speed = 0.05
+clear_wait = 4.0
+puntuation_wait = 0.6
+
+[node name="NarrationBox" type="Label" parent="Pauseable/Control/Narrator"]
+z_index = 101
+texture_filter = 2
+custom_minimum_size = Vector2(200, 50)
+layout_mode = 2
+size_flags_vertical = 6
+horizontal_alignment = 1
+autowrap_mode = 3
+justification_flags = 0
+visible_characters = 0
+visible_characters_behavior = 1
+visible_ratio = 0.0
+text_direction = 1
+
+[node name="Separator" type="Control" parent="Pauseable/Control/Narrator"]
+z_index = 101
+custom_minimum_size = Vector2(500, 300)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 6
+
+[node name="ScreenSlots" type="Control" parent="Pauseable/Control"]
+top_level = true
+z_index = 101
+layout_direction = 2
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Center" type="CenterContainer" parent="Pauseable/Control/ScreenSlots"]
+top_level = true
+z_index = 101
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+mouse_filter = 2
+
+[node name="1" type="Control" parent="Pauseable/Control/ScreenSlots/Center"]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Half" type="VBoxContainer" parent="Pauseable/Control/ScreenSlots"]
+top_level = true
+z_index = 101
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+mouse_filter = 2
+alignment = 1
+
+[node name="1" type="Control" parent="Pauseable/Control/ScreenSlots/Half"]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 6
+mouse_filter = 2
+
+[node name="2" type="Control" parent="Pauseable/Control/ScreenSlots/Half"]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 6
+mouse_filter = 2
+
+[node name="Quadrants" type="GridContainer" parent="Pauseable/Control/ScreenSlots"]
+top_level = true
+z_index = 101
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+mouse_filter = 2
+columns = 2
+
+[node name="1" type="Control" parent="Pauseable/Control/ScreenSlots/Quadrants"]
+modulate = Color(1, 1, 1, 0)
+z_index = 101
+layout_mode = 2
+size_flags_horizontal = 6
+size_flags_vertical = 6
+mouse_filter = 2
+
+[node name="2" type="Control" parent="Pauseable/Control/ScreenSlots/Quadrants"]
+modulate = Color(1, 1, 1, 0)
+z_index = 101
+layout_mode = 2
+size_flags_horizontal = 6
+size_flags_vertical = 6
+mouse_filter = 2
+
+[node name="3" type="Control" parent="Pauseable/Control/ScreenSlots/Quadrants"]
+modulate = Color(1, 1, 1, 0)
+z_index = 101
+layout_mode = 2
+size_flags_horizontal = 6
+size_flags_vertical = 6
+mouse_filter = 2
+
+[node name="4" type="Control" parent="Pauseable/Control/ScreenSlots/Quadrants"]
+modulate = Color(1, 1, 1, 0)
+z_index = 101
+layout_mode = 2
+size_flags_horizontal = 6
+size_flags_vertical = 6
+mouse_filter = 2
+
+[node name="NonPausable" type="Node" parent="."]
+process_mode = 3
+
+[node name="Unfreeze" type="Timer" parent="NonPausable"]
+one_shot = true
+
+[node name="Border" type="Node2D" parent="NonPausable" node_paths=PackedStringArray("top", "bottom", "left", "right")]
+script = ExtResource("2_gt6x5")
+top = NodePath("top")
+bottom = NodePath("bottom")
+left = NodePath("left_side")
+right = NodePath("right_side")
+
+[node name="bottom" type="Area2D" parent="NonPausable/Border"]
+position = Vector2(967.375, 1180.64)
+collision_layer = 0
+monitorable = false
+
+[node name="collision" type="CollisionShape2D" parent="NonPausable/Border/bottom"]
+shape = SubResource("RectangleShape2D_4xefw")
+
+[node name="top" type="Area2D" parent="NonPausable/Border"]
+position = Vector2(976.354, -94.4771)
+collision_layer = 0
+monitorable = false
+
+[node name="collision" type="CollisionShape2D" parent="NonPausable/Border/top"]
+shape = SubResource("RectangleShape2D_m2vlu")
+
+[node name="left_side" type="Area2D" parent="NonPausable/Border"]
+position = Vector2(-92.2295, 570.021)
+collision_layer = 0
+monitorable = false
+
+[node name="collision" type="CollisionShape2D" parent="NonPausable/Border/left_side"]
+shape = SubResource("RectangleShape2D_nivmx")
+
+[node name="right_side" type="Area2D" parent="NonPausable/Border"]
+position = Vector2(2026.98, 556.551)
+collision_layer = 0
+monitorable = false
+
+[node name="collision" type="CollisionShape2D" parent="NonPausable/Border/right_side"]
+shape = SubResource("RectangleShape2D_xj5o2")
+
+[node name="Control" type="Control" parent="NonPausable"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="PauseMenu" type="Control" parent="NonPausable/Control"]
+visible = false
+z_index = 100
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+focus_neighbor_top = NodePath("CenterContainer/Menu/MainMenu")
+focus_neighbor_bottom = NodePath("CenterContainer/Menu/Resume")
+focus_mode = 2
+mouse_force_pass_scroll_events = false
+
+[node name="ColorRect" type="ColorRect" parent="NonPausable/Control/PauseMenu"]
+self_modulate = Color(1, 1, 1, 0.431373)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.403922, 0.403922, 0.403922, 1)
+
+[node name="CenterContainer" type="CenterContainer" parent="NonPausable/Control/PauseMenu"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Menu" type="VBoxContainer" parent="NonPausable/Control/PauseMenu/CenterContainer"]
+custom_minimum_size = Vector2(700, 0)
+layout_mode = 2
+theme = ExtResource("4_bjykd")
+
+[node name="Resume" parent="NonPausable/Control/PauseMenu/CenterContainer/Menu" instance=ExtResource("7_6qorx")]
+layout_mode = 2
+text = "Resume"
+
+[node name="Restart" parent="NonPausable/Control/PauseMenu/CenterContainer/Menu" instance=ExtResource("7_6qorx")]
+layout_mode = 2
+text = "Restart"
+
+[node name="MainMenu" parent="NonPausable/Control/PauseMenu/CenterContainer/Menu" instance=ExtResource("7_6qorx")]
+layout_mode = 2
+text = "Main Menu"
+
+[node name="Quit" parent="NonPausable/Control/PauseMenu/CenterContainer/Menu" instance=ExtResource("7_6qorx")]
+layout_mode = 2
+text = "Quit Game"
+
+[node name="Transitions" type="Control" parent="NonPausable/Control"]
+modulate = Color(1, 1, 1, 0)
+top_level = true
+z_index = 101
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 0
+size_flags_vertical = 0
+
+[node name="BG" type="ColorRect" parent="NonPausable/Control/Transitions"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MovingPart" type="TextureRect" parent="NonPausable/Control/Transitions/BG"]
+material = SubResource("ShaderMaterial_bouti")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("8_23b27")
+expand_mode = 1
+stretch_mode = 1
+
+[node name="MainCamera" type="Camera2D" parent="."]
+anchor_mode = 0
+editor_draw_limits = true
+
+[node name="DebugCamera" type="Camera2D" parent="."]
+position = Vector2(-950, 0)
+anchor_mode = 0
+limit_top = 0
+
+[connection signal="area_entered" from="NonPausable/Border/bottom" to="NonPausable/Border" method="_on_top_bottom_area_entered"]
+[connection signal="area_entered" from="NonPausable/Border/top" to="NonPausable/Border" method="_on_top_bottom_area_entered"]
+[connection signal="area_entered" from="NonPausable/Border/left_side" to="NonPausable/Border" method="_on_left_side_area_entered"]
+[connection signal="area_entered" from="NonPausable/Border/right_side" to="NonPausable/Border" method="_on_right_side_area_entered"]
+[connection signal="pressed" from="NonPausable/Control/PauseMenu/CenterContainer/Menu/Resume" to="." method="_ResumeGame"]
+[connection signal="pressed" from="NonPausable/Control/PauseMenu/CenterContainer/Menu/Restart" to="." method="Restart"]
+[connection signal="pressed" from="NonPausable/Control/PauseMenu/CenterContainer/Menu/MainMenu" to="." method="GameEnd"]
+[connection signal="pressed" from="NonPausable/Control/PauseMenu/CenterContainer/Menu/Quit" to="." method="_GameClose"]

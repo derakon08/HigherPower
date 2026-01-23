@@ -32,7 +32,6 @@ var _wait_between_spawns : float
 @export var wait_between_spawns : float:
 	set (value):
 		_COOLDOWN_TIMER.set_process(value > 0)
-		_COOLDOWN_TIMER.time = value
 		_wait_between_spawns = value
 	get:
 		return _wait_between_spawns
@@ -301,7 +300,7 @@ func _process(delta: float) -> void:
 
 		if (_stream_index >= stream_number): #stream ended, apply logic
 			_stream_index = 0
-			_COOLDOWN_TIMER.Start()
+			_COOLDOWN_TIMER.Start(_wait_between_spawns)
 			_angle += _angle_between_spawns
 			_allow_shooting = wait_between_spawns == 0
 			stream_over.emit()
@@ -417,7 +416,6 @@ func SetSpawner(on : bool = true):
 	_is_alive = on
 
 func AllowShooting():
-	_COOLDOWN_TIMER.time = _wait_between_spawns
 	_allow_shooting = true
 
 func StopShooting():

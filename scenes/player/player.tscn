@@ -1,0 +1,149 @@
+[gd_scene load_steps=14 format=3 uid="uid://qs3ddtyyqy7s"]
+
+[ext_resource type="Script" uid="uid://c8cboff3qpirk" path="res://scripts/player/player_fast_wide.gd" id="1_q2uad"]
+[ext_resource type="Texture2D" uid="uid://f24ajn7ky35u" path="res://images/player/player_body.png" id="1_qv0u4"]
+[ext_resource type="Texture2D" uid="uid://cljaxgu7f22ss" path="res://images/player/player_body (Copy).png" id="3_ccfk8"]
+[ext_resource type="PackedScene" uid="uid://dg5cjrt6ero4q" path="res://scenes/spawners/simple_shape_spawner.tscn" id="4_gd0q6"]
+[ext_resource type="Texture2D" uid="uid://xnw78wi8l0l4" path="res://images/bullets/cardinals/cardinal.png" id="5_p47bc"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_nn35e"]
+radius = 12.0
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_s14w0"]
+particle_flag_disable_z = true
+emission_shape = 2
+emission_sphere_radius = 100.23
+angle_min = 1.07288e-05
+angle_max = 720.0
+gravity = Vector3(0, 0, 0)
+linear_accel_min = 45.07
+linear_accel_max = 45.07
+radial_accel_min = 100.0
+radial_accel_max = 100.0
+tangential_accel_min = -30.99
+tangential_accel_max = 36.62
+attractor_interaction_enabled = false
+scale_min = 0.1
+scale_max = 0.5
+color = Color(0.388235, 0, 0, 1)
+hue_variation_min = -1.0
+hue_variation_max = -1.0
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ll64v"]
+atlas = ExtResource("1_qv0u4")
+region = Rect2(0, 0, 198, 200)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ej243"]
+atlas = ExtResource("1_qv0u4")
+region = Rect2(200, 0, 198, 200)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_nyniv"]
+atlas = ExtResource("1_qv0u4")
+region = Rect2(400, 0, 198, 200)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_laldu"]
+atlas = ExtResource("1_qv0u4")
+region = Rect2(600, 0, 198, 200)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_rkewn"]
+atlas = ExtResource("1_qv0u4")
+region = Rect2(800, 0, 198, 200)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_u8t34"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ll64v")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ej243")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_nyniv")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_laldu")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ej243")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_rkewn")
+}],
+"loop": true,
+"name": &"default",
+"speed": 10.0
+}]
+
+[node name="Player" type="Area2D" node_paths=PackedStringArray("invinsibility_timer", "bomb_cooldown_timer")]
+top_level = true
+z_index = 10
+scale = Vector2(0.5, 0.5)
+monitoring = false
+script = ExtResource("1_q2uad")
+bullets_in_arc = 30
+invinsibility_timer = NodePath("InvinsTime")
+bomb_cooldown_timer = NodePath("BombCooldown")
+fire_rate = 30.0
+bullet_distance = 1.5
+shoot_mode = true
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_nn35e")
+
+[node name="BombCooldown" type="Timer" parent="."]
+wait_time = 50.0
+one_shot = true
+
+[node name="InvinsTime" type="Timer" parent="."]
+wait_time = 3.0
+one_shot = true
+autostart = true
+
+[node name="ParticlesExplosion" type="GPUParticles2D" parent="."]
+show_behind_parent = true
+emitting = false
+amount = 100
+texture = ExtResource("3_ccfk8")
+lifetime = 3.0
+one_shot = true
+speed_scale = 2.0
+fixed_fps = 35
+process_material = SubResource("ParticleProcessMaterial_s14w0")
+
+[node name="Void" type="AnimatedSprite2D" parent="."]
+z_as_relative = false
+texture_filter = 1
+position = Vector2(0, 8)
+sprite_frames = SubResource("SpriteFrames_u8t34")
+autoplay = "default"
+frame_progress = 0.734526
+offset = Vector2(-1.58, 2.135)
+
+[node name="RedDiamond" type="Sprite2D" parent="."]
+z_index = 100
+texture = ExtResource("3_ccfk8")
+
+[node name="Transition" parent="." node_paths=PackedStringArray("objective") instance=ExtResource("4_gd0q6")]
+top_level = true
+position = Vector2(962.84, 509.703)
+texture = ExtResource("5_p47bc")
+bullet_density = 20
+bullets_max_angle = 360.0
+stream_number = 1
+fire_rate = 100.0
+angle_between_spawns = 50.0
+objective = NodePath("..")
+one_shot = true
+allow_collision = false
+position_peaks = 4
+position_min_peaks_value = 50.0
+peak_sharpness = 2.0
+position_waves_value = 0.1
+elipse_shape = Vector2(20, 1500)
+position_preset = 5
+rotating_strength = 10.0
+movement_preset = 1
+stream_start_speed = 3000.0
+bullet_max_distance = 1000.0
+bullet_size = 170.0
