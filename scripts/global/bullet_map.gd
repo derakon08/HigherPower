@@ -8,8 +8,7 @@ extends MultiMeshInstance2D
 @export var sprite_size : Vector2 = Vector2(1, 1)
 
 #bullet data
-enum bullet_data {POSITION, ROTATION, SPEED, SIZE, COLLISION_GROUP, ANGULAR_VEL, LIFETIME, SPRITE_INDEX, INSTANCE, COLLISION_OFFSET}
-const bullet_data_types : Array[Variant.Type] = [TYPE_VECTOR2, TYPE_FLOAT, TYPE_FLOAT, TYPE_FLOAT, TYPE_STRING, TYPE_FLOAT, TYPE_FLOAT, TYPE_INT, TYPE_INT, TYPE_VECTOR2]
+enum bullet_data {POSITION, ROTATION, SPEED, SIZE, COLLISION_GROUP, ANGULAR_VEL, LIFETIME, SPRITE_INDEX, INSTANCE, COLLISION_OFFSET, COLLISION_SIZE_ADJUST}
 var _bullet_data : Array[Array]
 
 #collision variables
@@ -77,16 +76,16 @@ func _physics_process(delta: float) -> void:
 	if !_paused:
 		_ManageBulletLifetimes(delta)
 
-		for group in _collision_group_nodes.size():
-			for node in _collision_group_nodes[group].size():
-				_collision_group_node_positions[group][node] = _collision_group_nodes[group][node].global_position
-
 		for enum_number in MovementType.size():
 			_movement_type_methods[enum_number].call()
 
 
 func _process(_delta: float) -> void:
 	if !_paused:
+		for group in _collision_group_nodes.size():
+			for node in _collision_group_nodes[group].size():
+				_collision_group_node_positions[group][node] = _collision_group_nodes[group][node].global_position
+
 		_MeshAndCollide.call_deferred()
 
 
@@ -251,7 +250,7 @@ func Shoot(bullet_position : Vector2, bullet_speed : float, bullet_lifetime : fl
 	else:
 		i = _pool_size
 
-		_bullet_data[bullet_data.COLLISION_OFFSET][i].append(collision_offset)
+		_bullet_data[bullet_data.COLLISION_OFFSET].append(collision_offset)
 		_bullet_data[bullet_data.ANGULAR_VEL].append( angular_velocity)
 		_bullet_data[bullet_data.COLLISION_GROUP].append(_collision_groups[collision_group])
 		_bullet_data[bullet_data.LIFETIME].append(bullet_lifetime)
@@ -419,12 +418,14 @@ func IsClearingBullets():
 #Movement Callables
 
 func _MovementDefault(bucket_index : int) -> void:
-	var index : int = 0
+	var bullet : int 
 	var delta : float = get_physics_process_delta_time()
-	while index < _movement_type_buckets[bucket_index].size():
-		if _bullet_data[bullet_data.LIFETIME][_movement_type_buckets[bucket_index][index]] > 0:
-			_bullet_data[bullet_data.POSITION][_movement_type_buckets[bucket_index][index]] += _vector2_right.rotated(_bullet_data[bullet_data.ROTATION][_movement_type_buckets[bucket_index][index]]) * _bullet_data[bullet_data.SPEED][_movement_type_buckets[bucket_index][index]] * delta
-			_bullet_data[bullet_data.ROTATION][_movement_type_buckets[bucket_index][index]] += _bullet_data[bullet_data.ANGULAR_VEL][_movement_type_buckets[bucket_index][index]]
+	var bucket : Array[int] = _movement_type_buckets[bucket_index]
+	for index in range(_movement_type_buckets[bucket_index].size() -1, -1, -1):
+		bullet = bucket[index]
+		if _bullet_data[bullet_data.LIFETIME][bullet] > 0:
+			_bullet_data[bullet_data.POSITION][bullet] += _vector2_right.rotated(_bullet_data[bullet_data.ROTATION][bullet]) * _bullet_data[bullet_data.SPEED][bullet] * delta
+			_bullet_data[bullet_data.ROTATION][bullet] += _bullet_data[bullet_data.ANGULAR_VEL][bullet]
 			index += 1
 		else:
 			_SwapItemBackAndPop(_movement_type_buckets[bucket_index], index)
