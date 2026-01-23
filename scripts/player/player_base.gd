@@ -38,20 +38,15 @@ var _aprox_radius = 20
 @warning_ignore_restore("unused_private_class_variable")
 
 signal player_hit
-signal player_bomb_start
-signal player_bomb_end
 
 func _ready() -> void:
 	_particle_explosion = $ParticlesExplosion
 	_transition_node = $Transition
 	_transition_node.AllowMovement()
 
-	_transition_node.end_of_pool.connect(Main.InvertBackgroundColor)
-	_transition_node.end_of_pool.connect(player_bomb_end.emit)
+	_transition_node.end_of_pool.connect(_BombEnd)
 	invinsibility_timer.timeout.connect(Vulnerable.bind(true))
 	bomb_cooldown_timer.timeout.connect(BombReady.bind(true))
-	player_bomb_start.connect(BulletMap.ClearGameBullets)
-	player_bomb_end.connect(BulletMap.NukeGameBullets)
 
 func _physics_process(delta: float) -> void:
 	var velocity : Vector2 = Input.get_vector("left", "right", "up", "down")
@@ -61,21 +56,26 @@ func _physics_process(delta: float) -> void:
 
 func _process(delta: float) -> void:
 	if (_bomb_ready && Input.is_action_just_pressed("ship_action")):
-		_ShipAction()
+		_BombStart()
 	elif (allow_shooting && Input.is_action_pressed("shoot") && _vulnerable):
 		_to_be_fired += fire_rate * delta
 		_Shoot.call()
 	else:
 		_to_be_fired = 0
 
-func _ShipAction():
-	_bomb_ready = false
+func _BombStart():
 	Vulnerable(false)
+	_bomb_ready = false
 	shoot_mode = !_shoot_mode
 
+	BulletMap.ClearGameBullets()
+
 	bomb_cooldown_timer.start()
-	player_bomb_start.emit()
 	_transition_node.AllowShooting()
+
+func _BombEnd():
+	Main.InvertBackgroundColor()
+	BulletMap.NukeGameBullets()
 
 func Hit():
 	if _vulnerable:
@@ -98,6 +98,8 @@ func BombReady(on = true):
 		Main.narrator.Talk("Warp ready.")
 	
 	_bomb_ready = on
+
+
 
 func _ModeOne():
 	push_error("OVERRIDE PLAYER MODE ONE")

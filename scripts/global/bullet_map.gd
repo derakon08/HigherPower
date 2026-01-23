@@ -8,7 +8,8 @@ extends MultiMeshInstance2D
 @export var sprite_size : Vector2 = Vector2(1, 1)
 
 #bullet data
-enum bullet_data {POSITION, ROTATION, SPEED, SIZE, COLLISION_GROUP, ANGULAR_VEL, LIFETIME, SPRITE_INDEX, INSTANCE}
+enum bullet_data {POSITION, ROTATION, SPEED, SIZE, COLLISION_GROUP, ANGULAR_VEL, LIFETIME, SPRITE_INDEX, INSTANCE, COLLISION_OFFSET}
+const bullet_data_types : Array[Variant.Type] = [TYPE_VECTOR2, TYPE_FLOAT, TYPE_FLOAT, TYPE_FLOAT, TYPE_STRING, TYPE_FLOAT, TYPE_FLOAT, TYPE_INT, TYPE_INT, TYPE_VECTOR2]
 var _bullet_data : Array[Array]
 
 #collision variables
@@ -16,7 +17,7 @@ var _collision_group_node_positions : Array[Array] = [[]]
 var _collision_group_node_radius : Array[Array] = [[]]
 var _collision_group_nodes : Array[Array] = [[]]
 
-var _collision_group_names : Array[String]
+var _collision_group_names : Array[String] = ["dummy"]
 var _collision_groups : Dictionary = {"dummy" : 0}
 
 #Atlas variables
@@ -31,6 +32,7 @@ var _pool_size : int
 #state flags
 var _allow_shooting : bool = false
 var _paused : bool = false
+var _clearing_bullets : bool = false
 
 
 #To-do
@@ -115,7 +117,6 @@ func _ManageBulletLifetimes(delta : float):
 			else:
 				_bullet_data[bullet_data.LIFETIME][index] = 0
 				_dead_bullets.append(index)
-				multimesh.set_instance_transform_2d(index, _spare_transform)
 				multimesh.set_instance_custom_data(index, Color(0,0,0,0)) #please please please please
 
 
@@ -171,6 +172,7 @@ func _ChangeBulletMovementType(bullet_index : int, movement : MovementType) -> v
 func _ClearBullets(kill : bool = false) -> void:
 	_allow_shooting = false
 	_paused = true
+	_clearing_bullets = true
 
 	for index in _pool_size:
 		if (_bullet_data[bullet_data.LIFETIME][index] > 0):
@@ -181,8 +183,9 @@ func _ClearBullets(kill : bool = false) -> void:
 
 	_allow_shooting = true
 	_paused = false
+	_clearing_bullets = false
 
-	spawner_cleared.emit()
+	if !kill: spawner_cleared.emit()
 
 
 #Called at ready(), will check every movement type and append an array for each
@@ -222,10 +225,10 @@ func _JaggedSwapItemBackAndPopArray(arrays : Array[Array], index : int) -> void:
 #Public methods
 
 ##Returns the BULLET ID in the shape of a Vector2, both numbers are necessary to ensure modification is possible.
-##Where s = sprites in line: (x + sy) = sprite in atlas
-func Shoot(bullet_position : Vector2, bullet_speed : float, bullet_lifetime : float, bullet_rotation : float, bullet_size : float, collision_group : String = "dummy", sprite_in_atlas : int = 0, angular_velocity : float = 0, bullet_movement : MovementType = MovementType.default) -> Vector2i:
+##Where s = sprites in line: (x + sy) = sprite in atlas.
+##Collision offset : Vector2(push back, size reduction)
+func Shoot(bullet_position : Vector2, bullet_speed : float, bullet_lifetime : float, bullet_rotation : float, bullet_size : float, collision_group : String = "dummy", sprite_in_atlas : int = 0, angular_velocity : float = 0, collision_offset : Vector2 = Vector2.ZERO,bullet_movement : MovementType = MovementType.default) -> Vector2i:
 	if !_allow_shooting:
-		push_warning("!_allow_shooting is true")
 		return _vector2_right * 0
 	
 	var i : int
@@ -233,8 +236,9 @@ func Shoot(bullet_position : Vector2, bullet_speed : float, bullet_lifetime : fl
 	if !_dead_bullets.is_empty():
 		i = _dead_bullets.pop_back()
 
-		_bullet_data[bullet_data.ANGULAR_VEL][i] = angular_velocity
+		_bullet_data[bullet_data.COLLISION_OFFSET][i] = collision_offset
 		_bullet_data[bullet_data.COLLISION_GROUP][i] = _collision_groups[collision_group]
+		_bullet_data[bullet_data.ANGULAR_VEL][i] = angular_velocity
 		_bullet_data[bullet_data.POSITION][i] = bullet_position
 		_bullet_data[bullet_data.ROTATION][i] = bullet_rotation
 		_bullet_data[bullet_data.LIFETIME][i] = bullet_lifetime
@@ -247,6 +251,7 @@ func Shoot(bullet_position : Vector2, bullet_speed : float, bullet_lifetime : fl
 	else:
 		i = _pool_size
 
+		_bullet_data[bullet_data.COLLISION_OFFSET][i].append(collision_offset)
 		_bullet_data[bullet_data.ANGULAR_VEL].append( angular_velocity)
 		_bullet_data[bullet_data.COLLISION_GROUP].append(_collision_groups[collision_group])
 		_bullet_data[bullet_data.LIFETIME].append(bullet_lifetime)
@@ -395,6 +400,17 @@ func Pause():
 ##Use to resume processing 
 func Unpause():
 	_paused = false
+
+##Use to stop/allow shooting for external scripts. Use IsClearingBullets() to avoid desync
+func AllowShooting(allow : bool):
+	if _clearing_bullets:
+		push_warning("Spawner is clearing. Delaying call...")
+		await spawner_cleared
+	
+	_allow_shooting = allow
+
+func IsClearingBullets():
+	return _clearing_bullets
 
 
 
