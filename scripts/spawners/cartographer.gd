@@ -45,7 +45,7 @@ var _angular_velocity : float
 @export var bullet_size : float = 1
 
 @export_group("Options")
-var CalculatePosition : Callable = PositionCalcNone
+var CalculatePosition : Callable = _CalcPositionOffset
 var CalculateRotation : Callable = RotationCalcNone
 #The presets system
 #each setter checks what preset is selected and changes the function at runtime
@@ -66,7 +66,7 @@ var CalculateRotation : Callable = RotationCalcNone
 		preset_get[0] = value
 		match value:
 			PositionType.none:
-				CalculatePosition = PositionCalcNone
+				CalculatePosition = _CalcPositionOffset
 			PositionType.knot:
 				CalculatePosition = PositionCalcKnot
 			PositionType.flower:
@@ -180,7 +180,7 @@ func _Shoot():
 
 
 func _CalcPositionOffset(angle : float) -> Vector2:
-	return Vector2(global_position.x + spawn_offset.x * sin(angle), global_position.y + spawn_offset.y * cos(angle))
+	return Vector2(global_position.x + spawn_offset.x * sin(angle), global_position.y + spawn_offset.y * cos(angle)).rotated(angle)
 
 
 
@@ -216,23 +216,21 @@ func StopShooting():
 
 
 #Presets POSITION
-func PositionCalcNone(angle : float): #Position around spawner
-	return _CalcPositionOffset(angle).rotated(angle)
 func PositionCalcKnot(angle : float): #nvm, can't explain it
-	return _CalcPositionOffset(angle).rotated(angle) * sin(rad_to_deg(angle) * position_peaks_constant + _angle + rotation)
+	return _CalcPositionOffset(angle) * sin(rad_to_deg(angle) * position_peaks_constant + _angle + rotation)
 func PositionCalcFlower(angle : float):
-	return _CalcPositionOffset(angle).rotated(angle) * max(abs(sin(rad_to_deg(angle) * position_peaks_constant + _angle + rotation)) **peak_sharpness, position_min_peaks_value)
+	return _CalcPositionOffset(angle) * max(abs(sin(rad_to_deg(angle) * position_peaks_constant + _angle + rotation)) **peak_sharpness, position_min_peaks_value)
 func PositionCalcStar(angle : float):
-	return _CalcPositionOffset(angle).rotated(angle) * max(abs(tri_wave(rad_to_deg(angle) * position_peaks_constant + _angle + rotation))  **peak_sharpness, position_min_peaks_value)
+	return _CalcPositionOffset(angle) * max(abs(tri_wave(rad_to_deg(angle) * position_peaks_constant + _angle + rotation))  **peak_sharpness, position_min_peaks_value)
 func PositionCalcSpiral(angle):
-	return _CalcPositionOffset(angle).rotated(angle) * max(abs(saw_wave(rad_to_deg(angle) * position_peaks_constant + _angle + rotation))  **peak_sharpness, position_min_peaks_value)
+	return _CalcPositionOffset(angle) * max(abs(saw_wave(rad_to_deg(angle) * position_peaks_constant + _angle + rotation))  **peak_sharpness, position_min_peaks_value)
 func PositionCalcExperimental(angle : float):
-	return _CalcPositionOffset(angle).rotated(angle) * sin(rad_to_deg(angle) * position_peaks_constant * position_waves_value)
+	return _CalcPositionOffset(angle) * sin(rad_to_deg(angle) * position_peaks_constant * position_waves_value)
 
 #Presets ROTATION
 func RotationCalcNone(angle : float, _index = null):
 	return global_rotation + angle
-func RotationCalcFollowRotation(_base_angle = null, _index = null):
+func RotationCalcFollowRotation(__angle = null, _index = null):
 	return global_rotation
 func RotationCalcChanging(angle : float, _index = null):
 	_rotating_strength += rotating_strength

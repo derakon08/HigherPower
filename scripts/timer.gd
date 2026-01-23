@@ -26,8 +26,3 @@ func Start(time : float):
 func Stop():
 	start = false
 	_time_left = 0
-
-func Pause():
-	start = false
-func Resume():
-	start = true
