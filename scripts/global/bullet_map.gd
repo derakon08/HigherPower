@@ -116,6 +116,7 @@ func _ManageBulletLifetimes(delta : float):
 				_bullet_data[bullet_data.LIFETIME][index] = 0
 				_dead_bullets.append(index)
 				multimesh.set_instance_transform_2d(index, _spare_transform)
+				multimesh.set_instance_custom_data(index, Color(0,0,0,0)) #please please please please
 
 
 #Resizing is both expensive, and will introduce bugs... apparently. Anyway, every resize resets all instance custom data and flickers if not handled correctly

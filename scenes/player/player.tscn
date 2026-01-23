@@ -85,7 +85,7 @@ bullets_in_arc = 30
 invinsibility_timer = NodePath("InvinsTime")
 bomb_cooldown_timer = NodePath("BombCooldown")
 fire_rate = 30.0
-bullet_distance = 1.5
+bullet_distance = 1.0
 shoot_mode = true
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]

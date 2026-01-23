@@ -12,8 +12,6 @@ func _ready():
 
 func _init_thing():
 	thelabel = $Label
-	BulletMap.AddNewCollisionGroup("player")
-	BulletMap.AddObjectiveToGroup.call_deferred("player", Main.player, get_node("/root/Main/Pauseable/Player/CollisionShape2D").shape.radius)
 
 
 func StartTest(line : String, accuracy : float, function : Callable) -> void:

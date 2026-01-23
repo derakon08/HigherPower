@@ -40,6 +40,8 @@ func _ready() -> void:
 	game_area = $MainCamera.get_viewport().get_visible_rect()
 
 	BulletMap.AddNewCollisionGroup("enemies")
+	BulletMap.AddNewCollisionGroup("player")
+	BulletMap.AddObjectiveToGroup.call_deferred("player", Main.player, get_node("/root/Main/Pauseable/Player/CollisionShape2D").shape.radius)
 
 	world_freeze_timer.timeout.connect(unfreeze_world.emit)
 

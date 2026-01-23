@@ -1,4 +1,4 @@
-extends "res://scripts/spawners/shared_simple_script.gd"
+extends "res://scripts/spawners/legacy_version.gd"
 @export_category("HitScan Settings") #all about hitbox, sad i haven't used it
 #values for my frost arrow sprite, probably won't use it
 @export var hitbox_segments : int = 4

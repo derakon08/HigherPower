@@ -168,7 +168,7 @@ func _Shoot():
 		if delay_spawns && _allow_shooting:
 			pending_bullets_id.append(
 				BulletMap.Shoot(
-					CalculatePosition.call(global_rotation + temp_angle),
+					CalculatePosition.call(temp_angle),
 					0,
 					bullet_max_distance + 0.1,
 					CalculateRotation.call(temp_angle),
@@ -181,7 +181,7 @@ func _Shoot():
 			await get_tree().process_frame
 		else:
 			BulletMap.Shoot(
-					CalculatePosition.call(global_rotation + temp_angle),
+					CalculatePosition.call(temp_angle),
 					stream_start_speed + _speed_step * temp_stream_index,
 					bullet_max_distance + 0.1,
 					CalculateRotation.call(temp_angle),
@@ -198,11 +198,10 @@ func _Shoot():
 
 
 func _CalcPositionOffset(angle : float) -> Vector2:
-	return Vector2(
-		global_position.x + spawn_offset.x * cos(angle), 
-		global_position.y + spawn_offset.y * sin(angle)
-
-		)
+	return global_position + Vector2(
+		spawn_offset.x * cos(angle), 
+		spawn_offset.y * sin(angle)
+		).rotated(global_rotation)
 
 
 
