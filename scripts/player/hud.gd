@@ -16,6 +16,9 @@ var _margin_size : Vector2
 var _shake_value : Vector2
 var _shake : bool = false
 
+var _transparent_red : Color = Color(0.839216, 0.36078432, 0.36078432, 0)
+var _hurt_color_color : Color
+
 signal player_death
 
 func _ready():
@@ -27,6 +30,9 @@ func _ready():
     _screen_size = Main.game_area.size
     _screen_size.x -= _margin_size.x * 2
     _screen_size.y -= _margin_size.y + _pointers_size_halved.y
+
+    _transparent_red.a = hurt_color.color.a
+    _hurt_color_color = hurt_color.color
 
     Main.player.player_hit.connect(PlayerHit)
     hurt_color_timeout.timeout.connect(_ResetHitEffects)
@@ -71,6 +77,7 @@ func _ResetHitEffects():
 
     if HP_bar.value <= 20:
         HP_bar.tint_progress = Color.WHITE
+        hurt_color.color = _hurt_color_color
 
 
 
@@ -84,8 +91,8 @@ func PlayerHit():
     hurt_color_timeout.start()
 
     if HP_bar.value <= 20:
-        HP_bar.tint_progress = Color.RED
-        hurt_color.color = Color.INDIAN_RED
+        HP_bar.tint_progress = _transparent_red
+        hurt_color.color = _transparent_red
 
     if HP_bar.value <= 0:
         player_death.emit()
@@ -98,4 +105,4 @@ func FollowEnemy(node : Node):
 
 
 func DEBUG():
-    PlayerHit()
+    HP_bar.value = HP_bar.max_value

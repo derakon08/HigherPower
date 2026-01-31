@@ -1,10 +1,8 @@
-[gd_scene load_steps=12 format=3 uid="uid://bvl3q1qvfqsjn"]
+[gd_scene load_steps=10 format=3 uid="uid://bvl3q1qvfqsjn"]
 
 [ext_resource type="Theme" uid="uid://po03rpmxg6y8" path="res://images/themes/main.tres" id="1_qpsba"]
-[ext_resource type="Texture2D" uid="uid://buiyn46vpymgm" path="res://images/backgrounds/HUD/HUDa.png" id="2_5bwha"]
 [ext_resource type="Script" uid="uid://b8qp2g0si3ags" path="res://scripts/player/hud.gd" id="2_oxl5d"]
 [ext_resource type="Texture2D" uid="uid://uwrf5wewwafn" path="res://images/backgrounds/HUD/Dot.png" id="2_xivtj"]
-[ext_resource type="Texture2D" uid="uid://hjwn17gygxb5" path="res://images/backgrounds/HUD/bar_under.png" id="4_nhg7b"]
 [ext_resource type="Texture2D" uid="uid://mj5cpxk2cf31" path="res://images/backgrounds/HUD/bar.png" id="4_xpwvb"]
 [ext_resource type="Texture2D" uid="uid://c5l573so3sjs0" path="res://images/backgrounds/HUD/bar_progress.png" id="6_oxl5d"]
 [ext_resource type="Shader" uid="uid://bgb5ii30c0l6y" path="res://images/shaders/rotate.gdshader" id="8_gbix8"]
@@ -16,6 +14,7 @@ shader = ExtResource("8_gbix8")
 shader_parameter/rotate_counter_clockwise = false
 
 [node name="HUD" type="Control" node_paths=PackedStringArray("side_pointers", "top_pointer", "bottom_pointer", "HP_bar", "hurt_color", "hurt_color_timeout")]
+z_index = 51
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -31,10 +30,10 @@ script = ExtResource("2_oxl5d")
 side_pointers = NodePath("Pointers/SidePointersContainer/SidePointers")
 top_pointer = NodePath("Pointers/TopPointerContainer/TopPointer")
 bottom_pointer = NodePath("Pointers/BottomPointerContainer/BottomPointer")
-HP_bar = NodePath("Margin/Bottom/Bar/VBoxContainer/PlayerEnergy")
+HP_bar = NodePath("Margin/Bottom/Bar/PlayerEnergy")
 hurt_color = NodePath("HurtColor")
 hurt_color_timeout = NodePath("SeeingRed")
-hit_shake_value_max = Vector2(20, 20)
+hit_shake_value_max = Vector2(50, 50)
 hit_shake_strength = 0.8
 hit_shake_easing = 0.06
 
@@ -51,13 +50,6 @@ offset_bottom = 217.0
 grow_horizontal = 2
 grow_vertical = 2
 color = Color(0, 0, 0, 0.21568628)
-
-[node name="proto" type="TextureRect" parent="."]
-visible = false
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
-texture = ExtResource("2_5bwha")
 
 [node name="Margin" type="VBoxContainer" parent="."]
 layout_mode = 1
@@ -98,24 +90,17 @@ stretch_mode = 4
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="VBoxContainer" type="VBoxContainer" parent="Margin/Bottom/Bar"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="PlayerEnergy" type="TextureProgressBar" parent="Margin/Bottom/Bar/VBoxContainer"]
-layout_mode = 2
+[node name="PlayerEnergy" type="TextureProgressBar" parent="Margin/Bottom/Bar"]
+layout_mode = 0
+offset_right = 1712.0
+offset_bottom = 100.0
 size_flags_vertical = 3
 max_value = 120.0
 step = 20.0
 value = 120.0
 fill_mode = 6
 nine_patch_stretch = true
-texture_under = ExtResource("4_nhg7b")
-texture_over = ExtResource("4_xpwvb")
+texture_under = ExtResource("4_xpwvb")
 texture_progress = ExtResource("6_oxl5d")
 
 [node name="DotRight" type="TextureRect" parent="Margin/Bottom"]
@@ -185,5 +170,5 @@ texture = ExtResource("10_6fu3r")
 stretch_mode = 4
 
 [node name="SeeingRed" type="Timer" parent="."]
-wait_time = 0.3
+wait_time = 0.5
 one_shot = true

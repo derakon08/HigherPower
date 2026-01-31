@@ -91,20 +91,28 @@ func _process(_delta: float) -> void:
 
 ##The mesh and collide puts together collision and rendering, which increases performance by quite a bit. (See inital commit on github)
 func _MeshAndCollide() -> void:
-	if multimesh.instance_count < _pool_size:
-		breakpoint
-	for index in _pool_size:
-		if _bullet_data[bullet_data.LIFETIME][index] > 0:
-			_spare_transform = Transform2D(_bullet_data[bullet_data.ROTATION][index] - global_rotation, to_local(_bullet_data[bullet_data.POSITION][index]))
-			_spare_transform.x *= _bullet_data[bullet_data.SIZE][index] * 1.1
-			_spare_transform.y *= _bullet_data[bullet_data.SIZE][index] * 1.1
-			multimesh.set_instance_transform_2d(index, _spare_transform)
+	var bullet_collision_group : Array
+	var bullet_position : Vector2
+	var bullet_size : float
 
-			for node_index in _collision_group_node_positions[_bullet_data[bullet_data.COLLISION_GROUP][index]].size():
-				if ((_bullet_data[bullet_data.POSITION][index] - _collision_group_node_positions[_bullet_data[bullet_data.COLLISION_GROUP][index]][node_index]).length_squared() < #get the distance between the node and the bullet
-					(_collision_group_node_radius[_bullet_data[bullet_data.COLLISION_GROUP][index]][node_index] + _bullet_data[bullet_data.SIZE][index] * 0.5) **2 #If their sizes together are greater than the distance, they overlap
-					):
-					_collision_group_nodes[_bullet_data[bullet_data.COLLISION_GROUP][index]][node_index].Hit()
+	for index in _pool_size:
+		if _bullet_data[bullet_data.LIFETIME][index] <= 0:
+			continue
+
+		bullet_collision_group = _collision_group_node_positions[_bullet_data[bullet_data.COLLISION_GROUP][index]]
+		bullet_position = _bullet_data[bullet_data.POSITION][index]
+		bullet_size = _bullet_data[bullet_data.SIZE][index]
+
+		_spare_transform = Transform2D(_bullet_data[bullet_data.ROTATION][index] - global_rotation, to_local(bullet_position))
+		_spare_transform.x *= bullet_size * 1.1
+		_spare_transform.y *= bullet_size * 1.1
+		multimesh.set_instance_transform_2d(index, _spare_transform)
+
+		for node_index in bullet_collision_group.size():
+			if ((bullet_position - bullet_collision_group[node_index]).length_squared() < #get the distance between the node and the bullet
+				(_collision_group_node_radius[_bullet_data[bullet_data.COLLISION_GROUP][index]][node_index] + bullet_size * 0.5) **2 #If their sizes together are greater than the distance, they overlap
+				):
+				_collision_group_nodes[_bullet_data[bullet_data.COLLISION_GROUP][index]][node_index].Hit()
 
 
 func _ManageBulletLifetimes(delta : float):

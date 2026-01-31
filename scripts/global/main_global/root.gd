@@ -45,10 +45,7 @@ func _ready() -> void:
 
 	world_freeze_timer.timeout.connect(unfreeze_world.emit)
 
-	if (!debug):
-		player.Switch(false)
-		LoadNode("res://scenes/main_menu/main_menu.tscn", false)
-	else:
+	if (debug):
 		player.Switch(true)
 		_game_state_flag = game_state.ON_GAME
 
