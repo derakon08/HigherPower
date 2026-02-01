@@ -94,25 +94,37 @@ func _MeshAndCollide() -> void:
 	var bullet_collision_group : int
 	var bullet_position : Vector2
 	var bullet_size : float
+	var rot : float
+	var collision_offset : Vector2
+	var collision_multiplier : float
+
+	var nodes_position : Array
+	var nodes_radius : Array
 
 	for index in _pool_size:
 		if _bullet_data[bullet_data.LIFETIME][index] <= 0:
 			continue
 
+		#bunch'a cache
 		bullet_collision_group = _bullet_data[bullet_data.COLLISION_GROUP][index]
 		bullet_position = _bullet_data[bullet_data.POSITION][index]
 		bullet_size = _bullet_data[bullet_data.SIZE][index]
+		rot = _bullet_data[bullet_data.ROTATION][index]
+		collision_offset = _bullet_data[bullet_data.COLLISION_OFFSET][index].rotated(rot)
+		collision_multiplier = _bullet_data[bullet_data.COLLISION_SIZE_MULTIPLIER][index]
+		nodes_position = _collision_group_node_positions[bullet_collision_group]
+		nodes_radius = _collision_group_node_radius[bullet_collision_group]
 
-		_spare_transform = Transform2D(_bullet_data[bullet_data.ROTATION][index] - global_rotation, to_local(bullet_position))
+		_spare_transform = Transform2D(rot - global_rotation, to_local(bullet_position))
 		_spare_transform.x *= bullet_size
 		_spare_transform.y *= bullet_size
 		multimesh.set_instance_transform_2d(index, _spare_transform)
 
 		for node_index in _collision_group_nodes[bullet_collision_group].size():
-			if ((bullet_position + _bullet_data[bullet_data.COLLISION_OFFSET][index].rotated(_bullet_data[bullet_data.ROTATION][index]) - _collision_group_node_positions[bullet_collision_group][node_index]).length_squared() < #get the distance between the node and the bullet
-				(_collision_group_node_radius[bullet_collision_group][node_index] + bullet_size * 0.5 * _bullet_data[bullet_data.COLLISION_SIZE_MULTIPLIER][index]) **2 #If their sizes together are greater than the distance, they overlap
+			if ((bullet_position + collision_offset - nodes_position[node_index]).length_squared() < #get the distance between the node and the bullet
+				(nodes_radius[node_index] + bullet_size * 0.5 * collision_multiplier) **2 #If their sizes together are greater than the distance, they overlap
 				):
-				_collision_group_nodes[_bullet_data[bullet_data.COLLISION_GROUP][index]][node_index].Hit()
+				_collision_group_nodes[bullet_collision_group][node_index].Hit()
 
 
 func _ManageBulletLifetimes(delta : float):
@@ -319,20 +331,16 @@ func ChangeBulletMovementType(bullet_id : Vector2i, movement : MovementType) -> 
 func ResetPoolSize() -> void: #reset and fill arrays
 	for type in bullet_data.size():
 		_bullet_data[type].resize(preloaded_pool_size)
+	for bucket in _movement_type_buckets:
+		bucket.clear()
 
 	_dead_bullets.resize(preloaded_pool_size)
 	multimesh.instance_count = preloaded_pool_size
 	_pool_size = preloaded_pool_size
 
 	for index in preloaded_pool_size: #delete comments on test success
-		#_bullet_data[bullet_data.ANGULAR_VEL]
-		_bullet_data[bullet_data.COLLISION_GROUP][index] = 0
 		_bullet_data[bullet_data.LIFETIME][index] = 0
 		_bullet_data[bullet_data.INSTANCE][index] = 1
-		#_bullet_data[bullet_data.POSITION][index] = Vector2.ZERO
-		#_bullet_data[bullet_data.ROTATION]
-		#_bullet_data[bullet_data.SIZE]
-		#_bullet_data[bullet_data.SPEED]
 
 		_dead_bullets[index] = index
 
