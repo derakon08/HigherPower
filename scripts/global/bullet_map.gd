@@ -8,7 +8,7 @@ extends MultiMeshInstance2D
 @export var sprite_size : Vector2 = Vector2(1, 1)
 
 #bullet data
-enum bullet_data {POSITION, ROTATION, SPEED, SIZE, COLLISION_GROUP, ANGULAR_VEL, LIFETIME, SPRITE_INDEX, INSTANCE, COLLISION_OFFSET, COLLISION_SIZE_MULTIPLIER}
+enum bullet_data {POSITION, ROTATION, SPEED, SIZE, COLLISION_GROUP, ANGULAR_VEL, LIFETIME, SPRITE_INDEX, INSTANCE, COLLISION_OFFSET, COLLISION_SIZE_MULTIPLIER, MOVEMENT_TYPE}
 var _bullet_data : Array[Array]
 
 #collision variables
@@ -183,12 +183,14 @@ func _RemoveObjectiveFromGroup(group_name : String, node : Node) -> void:
 
 
 func _ChangeBulletMovementType(bullet_index : int, movement : MovementType) -> void:
+	var bucket : Array = _movement_type_buckets[_bullet_data[bullet_data.MOVEMENT_TYPE][bullet_index]]
+
 	_movement_type_buckets[movement].append(bullet_index)
-	
+
 	#Get the ARRAY INDEX which contains the bullet index
-	for index in _movement_type_buckets[movement].size():
-		if _movement_type_buckets[movement][index] == bullet_index:
-			_SwapItemBackAndPop(_movement_type_buckets[movement], index) #TO-DO
+	for index in bucket.size():
+		if bucket[index] == bullet_index:
+			_SwapItemBackAndPop(bucket, index)
 
 
 func _ClearBullets(kill : bool = false) -> void:
@@ -261,6 +263,7 @@ func Shoot(bullet_position : Vector2, bullet_speed : float, bullet_lifetime : fl
 		_bullet_data[bullet_data.COLLISION_SIZE_MULTIPLIER][i] = collision_size_multiplier
 		_bullet_data[bullet_data.COLLISION_OFFSET][i] = collision_offset
 		_bullet_data[bullet_data.COLLISION_GROUP][i] = _collision_groups[collision_group]
+		_bullet_data[bullet_data.MOVEMENT_TYPE][i] = bullet_movement
 		_bullet_data[bullet_data.ANGULAR_VEL][i] = angular_velocity
 		_bullet_data[bullet_data.POSITION][i] = bullet_position
 		_bullet_data[bullet_data.ROTATION][i] = bullet_rotation
@@ -276,6 +279,7 @@ func Shoot(bullet_position : Vector2, bullet_speed : float, bullet_lifetime : fl
 
 		_bullet_data[bullet_data.COLLISION_SIZE_MULTIPLIER].append(collision_size_multiplier)
 		_bullet_data[bullet_data.COLLISION_OFFSET].append(collision_offset)
+		_bullet_data[bullet_data.MOVEMENT_TYPE].append(bullet_movement)
 		_bullet_data[bullet_data.ANGULAR_VEL].append( angular_velocity)
 		_bullet_data[bullet_data.COLLISION_GROUP].append(_collision_groups[collision_group])
 		_bullet_data[bullet_data.LIFETIME].append(bullet_lifetime)
@@ -310,7 +314,11 @@ func Shoot(bullet_position : Vector2, bullet_speed : float, bullet_lifetime : fl
 func TouchBulletData(bullet_id : Vector2i, data_type : bullet_data, modify : bool = false, new_value : float = -1):
 	if _bullet_data[bullet_data.INSTANCE][bullet_id[0]] != bullet_id[1]:
 		push_warning("Invalid bullet index")
-		return null
+		return
+	
+	elif data_type == bullet_data.INSTANCE:
+		push_error("Do not modify a bullet's instance data type")
+		return
 	
 	if modify:
 		_bullet_data[data_type][bullet_id[0]] = new_value
