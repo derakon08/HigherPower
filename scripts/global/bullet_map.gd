@@ -8,7 +8,7 @@ extends MultiMeshInstance2D
 @export var sprite_size : Vector2 = Vector2(1, 1)
 
 #bullet data
-enum bullet_data {POSITION, ROTATION, SPEED, SIZE, COLLISION_GROUP, ANGULAR_VEL, LIFETIME, SPRITE_INDEX, INSTANCE, COLLISION_OFFSET, COLLISION_SIZE_ADJUST}
+enum bullet_data {POSITION, ROTATION, SPEED, SIZE, COLLISION_GROUP, ANGULAR_VEL, LIFETIME, SPRITE_INDEX, INSTANCE, COLLISION_OFFSET, COLLISION_SIZE_MULTIPLIER}
 var _bullet_data : Array[Array]
 
 #collision variables
@@ -63,7 +63,7 @@ func _ready() -> void:
 
 	_SetupMovementBuckets()
 	_SetupBulletData()
-	ResetPoolSize() #Bullets depend on movement buckets, this has to go AFTER buckets initialization
+	ResetPoolSize() #Reseting depends on data types, this has to go AFTER bullet data initialization
 
 
 	_paused = false
@@ -91,7 +91,7 @@ func _process(_delta: float) -> void:
 
 ##The mesh and collide puts together collision and rendering, which increases performance by quite a bit. (See inital commit on github)
 func _MeshAndCollide() -> void:
-	var bullet_collision_group : Array
+	var bullet_collision_group : int
 	var bullet_position : Vector2
 	var bullet_size : float
 
@@ -99,18 +99,18 @@ func _MeshAndCollide() -> void:
 		if _bullet_data[bullet_data.LIFETIME][index] <= 0:
 			continue
 
-		bullet_collision_group = _collision_group_node_positions[_bullet_data[bullet_data.COLLISION_GROUP][index]]
+		bullet_collision_group = _bullet_data[bullet_data.COLLISION_GROUP][index]
 		bullet_position = _bullet_data[bullet_data.POSITION][index]
 		bullet_size = _bullet_data[bullet_data.SIZE][index]
 
 		_spare_transform = Transform2D(_bullet_data[bullet_data.ROTATION][index] - global_rotation, to_local(bullet_position))
-		_spare_transform.x *= bullet_size * 1.1
-		_spare_transform.y *= bullet_size * 1.1
+		_spare_transform.x *= bullet_size
+		_spare_transform.y *= bullet_size
 		multimesh.set_instance_transform_2d(index, _spare_transform)
 
-		for node_index in bullet_collision_group.size():
-			if ((bullet_position - bullet_collision_group[node_index]).length_squared() < #get the distance between the node and the bullet
-				(_collision_group_node_radius[_bullet_data[bullet_data.COLLISION_GROUP][index]][node_index] + bullet_size * 0.5) **2 #If their sizes together are greater than the distance, they overlap
+		for node_index in _collision_group_nodes[bullet_collision_group].size():
+			if ((bullet_position + _bullet_data[bullet_data.COLLISION_OFFSET][index].rotated(_bullet_data[bullet_data.ROTATION][index]) - _collision_group_node_positions[bullet_collision_group][node_index]).length_squared() < #get the distance between the node and the bullet
+				(_collision_group_node_radius[bullet_collision_group][node_index] + bullet_size * 0.5 * _bullet_data[bullet_data.COLLISION_SIZE_MULTIPLIER][index]) **2 #If their sizes together are greater than the distance, they overlap
 				):
 				_collision_group_nodes[_bullet_data[bullet_data.COLLISION_GROUP][index]][node_index].Hit()
 
@@ -129,7 +129,10 @@ func _ManageBulletLifetimes(delta : float):
 
 #Resizing is both expensive, and will introduce bugs... apparently. Anyway, every resize resets all instance custom data and flickers if not handled correctly
 func _IncreaseMultimeshInstanceCount():
-	multimesh.instance_count *= 2 #I believe this makes sense, as the more you resize, the more likely it is that you're using an insane amount of bullets
+	if multimesh.instance_count <= 0:
+		multimesh.instance_count = 1
+	else:
+		multimesh.instance_count *= 2 #I believe this makes sense, as the more you resize, the more likely it is that you're using an insane amount of bullets
 
 	for index in _pool_size: #please don't tank my fps please
 		@warning_ignore("integer_division")
@@ -173,7 +176,7 @@ func _ChangeBulletMovementType(bullet_index : int, movement : MovementType) -> v
 	#Get the ARRAY INDEX which contains the bullet index
 	for index in _movement_type_buckets[movement].size():
 		if _movement_type_buckets[movement][index] == bullet_index:
-			_SwapItemBackAndPop(_movement_type_buckets[movement], index)
+			_SwapItemBackAndPop(_movement_type_buckets[movement], index) #TO-DO
 
 
 func _ClearBullets(kill : bool = false) -> void:
@@ -234,7 +237,7 @@ func _JaggedSwapItemBackAndPopArray(arrays : Array[Array], index : int) -> void:
 ##Returns the BULLET ID in the shape of a Vector2, both numbers are necessary to ensure modification is possible.
 ##Where s = sprites in line: (x + sy) = sprite in atlas.
 ##Collision offset : Vector2(push back, size reduction)
-func Shoot(bullet_position : Vector2, bullet_speed : float, bullet_lifetime : float, bullet_rotation : float, bullet_size : float, collision_group : String = "dummy", sprite_in_atlas : int = 0, angular_velocity : float = 0, collision_offset : Vector2 = Vector2.ZERO,bullet_movement : MovementType = MovementType.default) -> Vector2i:
+func Shoot(bullet_position : Vector2, bullet_speed : float, bullet_lifetime : float, bullet_rotation : float, bullet_size : float, collision_group : String = "dummy", sprite_in_atlas : int = 0, angular_velocity : float = 0, collision_offset : Vector2 = Vector2(0, 0), collision_size_multiplier : float = 1.0, bullet_movement : MovementType = MovementType.default) -> Vector2i:
 	if !_allow_shooting:
 		return _vector2_right * 0
 	
@@ -243,6 +246,7 @@ func Shoot(bullet_position : Vector2, bullet_speed : float, bullet_lifetime : fl
 	if !_dead_bullets.is_empty():
 		i = _dead_bullets.pop_back()
 
+		_bullet_data[bullet_data.COLLISION_SIZE_MULTIPLIER][i] = collision_size_multiplier
 		_bullet_data[bullet_data.COLLISION_OFFSET][i] = collision_offset
 		_bullet_data[bullet_data.COLLISION_GROUP][i] = _collision_groups[collision_group]
 		_bullet_data[bullet_data.ANGULAR_VEL][i] = angular_velocity
@@ -258,6 +262,7 @@ func Shoot(bullet_position : Vector2, bullet_speed : float, bullet_lifetime : fl
 	else:
 		i = _pool_size
 
+		_bullet_data[bullet_data.COLLISION_SIZE_MULTIPLIER].append(collision_size_multiplier)
 		_bullet_data[bullet_data.COLLISION_OFFSET].append(collision_offset)
 		_bullet_data[bullet_data.ANGULAR_VEL].append( angular_velocity)
 		_bullet_data[bullet_data.COLLISION_GROUP].append(_collision_groups[collision_group])

@@ -1,3 +1,6 @@
-[gd_scene format=3 uid="uid://ph2ouajvted8"]
+[gd_scene load_steps=2 format=3 uid="uid://ph2ouajvted8"]
+
+[ext_resource type="Script" uid="uid://hgehw8nr7aqp" path="res://scripts/main_wrapper.gd" id="1_wdexp"]
 
 [node name="Node" type="Node"]
+script = ExtResource("1_wdexp")
