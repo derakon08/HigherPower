@@ -14,7 +14,12 @@ func _ready():
 	
 
 func _init_thing():
-	pass
+	Main.player.Switch(true)
+	Main._game_state_flag = Main.game_state.ON_GAME
+		
+	for index in 7:
+		Savestate.CompletedLevel(index)
+		return
 
 
 func StartTest(line : String, accuracy : float, function : Callable) -> void:
@@ -32,6 +37,13 @@ func _input(event : InputEvent):
 	if event is InputEventMouseButton && event.get(&"button_index") == 2 && event.get(&"pressed") == true:
 		_right_click_position = event.get(&"position")
 		dialog.visible = true
+	elif (event.is_action_released("debug_button")):
+		Main.player.get_node("BombCooldown").wait_time = 3
+		Main.DEBUG.emit()
+
+func _notification(what):
+	if what == NOTIFICATION_WM_CLOSE_REQUEST:
+		Savestate.WipeData()
 
 
 

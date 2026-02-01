@@ -6,10 +6,6 @@ extends Node
 @export var narrator : Control
 @export var world_freeze_timer : Timer
 
-@export_group("Debug")
-@export var debug : bool = false
-@export var debug_camera : bool = false
-
 var _player_normal_speed : int
 var _player_focus_speed : int
 var _player_fire_rate : int
@@ -45,19 +41,6 @@ func _ready() -> void:
 
 	world_freeze_timer.timeout.connect(unfreeze_world.emit)
 
-	if (debug):
-		player.Switch(true)
-		_game_state_flag = game_state.ON_GAME
-
-		if (debug_camera):
-			$MainCamera.enabled = false
-			$NonPausable/Border.position = $DebugCamera.position
-			game_area = Rect2($DebugCamera.global_position, get_viewport().size)
-		
-		for index in 7:
-			Savestate.CompletedLevel(index)
-			return
-
 func _input(event: InputEvent) -> void:
 	if event.is_action_released("pause"):
 		match _game_state_flag:
@@ -67,10 +50,6 @@ func _input(event: InputEvent) -> void:
 				_ResumeGame()
 			game_state.ON_GAME:
 				_PauseGame()
-
-	elif (event.is_action_released("debug_button") && debug):
-		player.get_node("BombCooldown").wait_time = 3
-		DEBUG.emit()
 
 func _notification(what):
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
@@ -164,8 +143,6 @@ func _ResumeGame() -> void:
 	$Pauseable.process_mode = Node.PROCESS_MODE_PAUSABLE
 
 func _GameClose() -> void:
-	if debug: Savestate.WipeData()
-
 	FadeModulator.ShowNodeAtSafe(transition_decor)
 	await FadeModulator.AwaitOpaque(transition_decor)
 
