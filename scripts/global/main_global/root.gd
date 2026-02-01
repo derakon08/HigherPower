@@ -51,10 +51,6 @@ func _input(event: InputEvent) -> void:
 			game_state.ON_GAME:
 				_PauseGame()
 
-func _notification(what):
-	if what == NOTIFICATION_WM_CLOSE_REQUEST:
-		_GameClose()
-
 
 #global methods
 func TimeStop(timeout : float):

@@ -85,6 +85,7 @@ func Hit():
 
 func Switch(on : bool):
 	self.set_physics_process(on)
+	self.set_process(on)
 	self.visible = on
 
 func Vulnerable(on : bool):
