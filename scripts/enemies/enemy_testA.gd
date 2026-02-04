@@ -8,6 +8,7 @@ extends Node2D
 @export var stream_density : int = 1
 @export var bullet_hit_sprite : int = 0
 @export var bullet_hit_duration : float = 0
+@export var bullet_hit_speed : float = 100
 
 var _route_node : Node
 var _route : Array[Vector2]
@@ -44,7 +45,7 @@ func _ready() -> void:
 func _physics_process(delta: float) -> void:
 	if _move:
 		var distance_left = (global_position - _route[_current_route]).length()
-		global_position += _direction * speed * delta * sin(distance_left / PI)
+		global_position -= _direction * speed * delta
 
 		if distance_left < speed + delta:
 			_ReachedPosition()
@@ -90,9 +91,9 @@ func _ReachedPosition():
 		_move = false
 		_ReachedEnd()
 
-
+@warning_ignore("UNUSED_PARAMETER")
 func _ReachedStop(route_stop : int):
-	push_warning("No defined behaviours for node: ", self)
+	push_error("NO BEHAVIOUR DEFINED FOR NODE: ", self)
 
 
 func _ReachedEnd():
@@ -109,11 +110,20 @@ func _Death():
 
 
 func Hit(bullet : Vector2i):
+	#Main.InvertBackgroundColor() #this hurts so much, and im not even epileptic
 	health -= 1
-	BulletMap.TouchBulletData(bullet, BulletMap.bullet_data.SPRITE_INDEX, true, bullet_hit_sprite)
+	BulletMap.ChangeBulletSprite(bullet, bullet_hit_sprite)
+	BulletMap.TouchBulletData(bullet, BulletMap.bullet_data.COLLISION_GROUP, true, 0) #dummy group
+	BulletMap.TouchBulletData(bullet, BulletMap.bullet_data.SPEED, true, bullet_hit_speed)
 	BulletMap.TouchBulletData(bullet, BulletMap.bullet_data.LIFETIME, true, bullet_hit_duration)
 
 	if health < 1:
 		_Death()
 
 
+func SetMovement(on : bool):
+	_move = on
+
+
+func SetShooting(on : bool):
+	_shoot = on

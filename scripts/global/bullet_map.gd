@@ -83,7 +83,6 @@ func _physics_process(delta: float) -> void:
 func _process(_delta: float) -> void:
 	if !_paused:
 		for group in _collision_group_nodes.size():
-			print(_collision_group_nodes)
 			for node in _collision_group_nodes[group].size():
 				_collision_group_node_positions[group][node] = _collision_group_nodes[group][node].global_position
 
@@ -135,7 +134,6 @@ func _ManageBulletLifetimes(delta : float):
 				_bullet_data[bullet_data.LIFETIME][index] -= delta
 			
 			else:
-				Main.InvertBackgroundColor()
 				_bullet_data[bullet_data.LIFETIME][index] = 0
 				_dead_bullets.append(index)
 				multimesh.set_instance_custom_data(index, Color(0,0,0,0)) #please please please please
@@ -149,6 +147,7 @@ func _IncreaseMultimeshInstanceCount():
 		multimesh.instance_count *= 2 #I believe this makes sense, as the more you resize, the more likely it is that you're using an insane amount of bullets
 
 	for index in _pool_size: #please don't tank my fps please
+		print(_bullet_data[bullet_data.SPRITE_INDEX][index], ' ', _sprites_per_atlas_row)
 		@warning_ignore("integer_division")
 		multimesh.set_instance_custom_data(
 			index,
@@ -319,8 +318,8 @@ func TouchBulletData(bullet_id : Vector2i, data_type : bullet_data, modify : boo
 		push_warning("Invalid bullet index")
 		return
 	
-	elif data_type == bullet_data.INSTANCE:
-		push_error("Do not modify a bullet's instance data type")
+	elif data_type == bullet_data.INSTANCE || data_type == bullet_data.SPRITE_INDEX:
+		push_error("Invalid data type for this method")
 		return
 	
 	if modify:
@@ -336,6 +335,23 @@ func ChangeBulletMovementType(bullet_id : Vector2i, movement : MovementType) -> 
 		return
 	
 	_ChangeBulletMovementType.call_deferred(bullet_id[0], movement)
+
+
+func ChangeBulletSprite(bullet_id : Vector2i, sprite_index : int):
+	if bullet_id[1] != _bullet_data[bullet_data.INSTANCE][bullet_id[0]]:
+		push_warning("Invalid bullet index")
+		return
+
+	@warning_ignore("integer_division")
+	multimesh.set_instance_custom_data(
+		bullet_id[0],
+		Color(
+			(sprite_index % _sprites_per_atlas_row),
+			(sprite_index / _sprites_per_atlas_row),
+			sprite_size.x,
+			sprite_size.y
+		))
+
 
 
 ##Dead bullets stay in memory to be recycled, ResetPoolSize is meant as a literal way of clean up. 
