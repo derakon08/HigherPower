@@ -1,5 +1,13 @@
 extends Node2D
-@export var bullet_density : int #number of bullets in the wall
+@export var bullet_density : int :
+	set (value):
+		_bullet_density = value
+
+		_spacing = _bullets_max_angle / value
+	
+	get:
+		return _bullet_density
+
 @export var stream_number : int = 1
 @export var fire_rate  : float #mustn't be less than 0.1
 @export var spawn_offset : Vector2
@@ -102,7 +110,7 @@ var CalculateRotation : Callable = RotationCalcNone
 		return preset_get[1]
 
 
-
+var _bullet_density : int
 var _angle_between_spawns : float
 var _wait_between_spawns : float
 var  _bullets_max_angle : float

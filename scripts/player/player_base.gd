@@ -77,7 +77,7 @@ func _BombEnd():
 	Main.InvertBackgroundColor()
 	BulletMap.NukeGameBullets()
 
-func Hit():
+func Hit(_args):
 	if _vulnerable:
 		Vulnerable(false)
 		_particle_explosion.emitting = true
