@@ -1,4 +1,4 @@
-##This script relies on enemies having a Hit() method. Bullet map is a bullet manager which will set the position of bullets shot by using the function Shoot
+##This script relies on enemies having a Hit(Vector2) method. Bullet map is a bullet manager which will set the position of bullets shot by using the function Shoot
 extends MultiMeshInstance2D
 
 ##The amount of bullets pre-loaded before any interaction. ResetPoolSize will use this number
@@ -83,6 +83,7 @@ func _physics_process(delta: float) -> void:
 func _process(_delta: float) -> void:
 	if !_paused:
 		for group in _collision_group_nodes.size():
+			print(_collision_group_nodes)
 			for node in _collision_group_nodes[group].size():
 				_collision_group_node_positions[group][node] = _collision_group_nodes[group][node].global_position
 
@@ -105,7 +106,7 @@ func _MeshAndCollide() -> void:
 		if _bullet_data[bullet_data.LIFETIME][index] <= 0:
 			continue
 
-		#bunch'a cache
+		#bunch of cache
 		bullet_collision_group = _bullet_data[bullet_data.COLLISION_GROUP][index]
 		bullet_position = _bullet_data[bullet_data.POSITION][index]
 		bullet_size = _bullet_data[bullet_data.SIZE][index]
@@ -121,10 +122,10 @@ func _MeshAndCollide() -> void:
 		multimesh.set_instance_transform_2d(index, _spare_transform)
 
 		for node_index in _collision_group_nodes[bullet_collision_group].size():
-			if ((bullet_position + collision_offset - nodes_position[node_index]).length_squared() < #get the distance between the node and the bullet
-				(nodes_radius[node_index] + bullet_size * 0.5 * collision_multiplier) **2 #If their sizes together are greater than the distance, they overlap
+			if ((bullet_position + collision_offset - nodes_position[node_index]).length() < #get the distance between the node and the bullet
+				(nodes_radius[node_index] + bullet_size * 0.5 * collision_multiplier) #If their sizes together are greater than the distance, they overlap
 				):
-				_collision_group_nodes[bullet_collision_group][node_index].Hit()
+				_collision_group_nodes[bullet_collision_group][node_index].Hit(Vector2(index, _bullet_data[bullet_data.INSTANCE][index]))
 
 
 func _ManageBulletLifetimes(delta : float):
@@ -134,6 +135,7 @@ func _ManageBulletLifetimes(delta : float):
 				_bullet_data[bullet_data.LIFETIME][index] -= delta
 			
 			else:
+				Main.InvertBackgroundColor()
 				_bullet_data[bullet_data.LIFETIME][index] = 0
 				_dead_bullets.append(index)
 				multimesh.set_instance_custom_data(index, Color(0,0,0,0)) #please please please please
@@ -164,22 +166,23 @@ func _RemoveObjectiveFromGroup(group_name : String, node : Node) -> void:
 		push_warning("Invalid collision group for node removal: " + group_name)
 		return
 
-	for group in _collision_group_nodes[_collision_groups[group_name]]:
-		for node_index in group.size():
-			if group[node_index] == node:
-				_JaggedSwapItemBackAndPopArray(
-					[
-					_collision_group_nodes,
-					_collision_group_node_radius,
-					_collision_group_node_positions
-					],
-					node_index
-				)
+	var collision_group : int = _collision_groups[group_name]
 
-				return
+	for node_index in _collision_group_nodes[collision_group].size():
+		if _collision_group_nodes[collision_group][node_index] == node:
+			_SwapItemBackAndPopArray(
+				[
+				_collision_group_nodes[collision_group],
+				_collision_group_node_radius[collision_group],
+				_collision_group_node_positions[collision_group]
+				],
+				node_index
+			)
 
-			else:
-				continue
+			return
+
+		else:
+			continue
 
 
 func _ChangeBulletMovementType(bullet_index : int, movement : MovementType) -> void:
@@ -346,7 +349,7 @@ func ResetPoolSize() -> void: #reset and fill arrays
 	multimesh.instance_count = preloaded_pool_size
 	_pool_size = preloaded_pool_size
 
-	for index in preloaded_pool_size: #delete comments on test success
+	for index in preloaded_pool_size:
 		_bullet_data[bullet_data.LIFETIME][index] = 0
 		_bullet_data[bullet_data.INSTANCE][index] = 1
 
@@ -412,7 +415,7 @@ func AddObjectiveToGroup(group_name : String, node : Node, hitbox_radius : float
 	_collision_group_node_positions[_collision_groups[group_name]].append(_vector2_right)
 
 
-func RemoveObjectiveFromGroup(group_name : String, node : Node) ->void:
+func RemoveObjectiveFromGroup(group_name : String, node : Node) -> void:
 	if group_name == "dummy":
 		push_warning("Invalid collision group for node removal: " + group_name)
 		return
