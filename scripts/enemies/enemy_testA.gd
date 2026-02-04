@@ -9,8 +9,8 @@ extends Node2D
 @export var bullet_hit_sprite : int = 0
 @export var bullet_hit_duration : float = 0
 @export var bullet_hit_speed : float = 100
+@export var route_node : Node
 
-var _route_node : Node
 var _route : Array[Vector2]
 var _current_route : int = -1
 
@@ -18,7 +18,7 @@ var _Shoot : Callable = _ModeOne
 var _shoot_mode : bool = true
 
 var _free_at_screen_edge : bool = false
-var _direction : Vector2 = Vector2.RIGHT
+var _direction : Vector2
 var _game_area : Rect2
 var _move : bool = true
 var _shoot : bool = false
@@ -31,12 +31,12 @@ func _ready() -> void:
 	_free_at_screen_edge = _game_area.has_point(global_position)
 	BulletMap.AddObjectiveToGroup("enemies", self, radius)
 
-	if !_route_node:
+	if !route_node:
 		_route.append(
 			Main.player.global_position
 			)
 	else:
-		for child in _route_node.get_children():
+		for child in route_node.get_children():
 			_route.append(child.global_position)
 		
 	_ReachedPosition()
@@ -44,10 +44,9 @@ func _ready() -> void:
 
 func _physics_process(delta: float) -> void:
 	if _move:
-		var distance_left = (global_position - _route[_current_route]).length()
 		global_position -= _direction * speed * delta
 
-		if distance_left < speed + delta:
+		if (global_position - _route[_current_route]).length() < speed * delta:
 			_ReachedPosition()
 
 func _process(delta: float) -> void:
@@ -78,10 +77,10 @@ func _ReachedPosition():
 	_move = move_to_end
 
 	if _current_route < _route.size():
-		_direction = _direction.rotated(
+		_direction = Vector2(1,0).rotated(
 			atan2(
-					global_position.y - _route[0].y,
-					global_position.x - _route[0].x
+					global_position.y - _route[_current_route].y,
+					global_position.x - _route[_current_route].x
 				)
 			)
 
