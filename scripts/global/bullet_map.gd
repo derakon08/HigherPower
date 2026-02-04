@@ -19,7 +19,7 @@ var _bullet_sprite_index : Array[int]
 var _bullet_instance : Array[int]
 var _bullet_collision_offset : Array[Vector2]
 var _bullet_collision_size_multiplier: Array[float]
-var _bullet_movement_type_ref : Array[int]
+var _bullet_movement_type_ref : Array[MovementType]
 
 #collision variables
 var _collision_group_node_positions : Array[Array] = [[]]
@@ -246,6 +246,15 @@ func _JaggedSwapItemBackAndPopArray(arrays : Array[Array], index : int) -> void:
 			parameter_array.pop_back() #delete the duplicate
 
 
+func _ValidateBulletInstance(bullet_id : Vector2i) -> bool:
+	if _bullet_instance[bullet_id[0]] != bullet_id[1]:
+		push_warning("Invalid bullet index")
+		return false
+	
+	return true
+
+
+
 
 
 
@@ -314,28 +323,100 @@ func Shoot(bullet_position : Vector2, bullet_speed : float, bullet_lifetime : fl
 	return Vector2i(i, _bullet_instance[i])
 
 
-func ChangeBulletMovementType(bullet_id : Vector2i, movement : MovementType) -> void:
-	if _bullet_instance[bullet_id[0]] != bullet_id[1]:
-		push_warning("Invalid bullet index")
+##0. instance[br]
+##1. position[br]2. speed[br]
+##3. lifetime[br]4. rotation[br]5. size[br]
+##6. collision group[br] 7. sprite[br]
+##8. angular velocity[br]  9. collision offset[br]
+##10. collision multiplier[br]11. movement type[br]
+func GetBulletData(bullet_id : Vector2i):
+	if !_ValidateBulletInstance(bullet_id):
+		return null
+	
+	var bullet_data : Array
+
+	bullet_data.append(_bullet_instance[bullet_id[0]])
+	bullet_data.append(_bullet_position[bullet_id[0]])
+	bullet_data.append(_bullet_speed[bullet_id[0]])
+	bullet_data.append(_bullet_lifetime[bullet_id[0]])
+	bullet_data.append(_bullet_rotation[bullet_id[0]])
+	bullet_data.append(_bullet_size[bullet_id[0]])
+	bullet_data.append(_collision_group_names[_bullet_collision_group[bullet_id[0]]])
+	bullet_data.append(_bullet_sprite_index[bullet_id[0]])
+	bullet_data.append(_bullet_angular_velocity[bullet_id[0]])
+	bullet_data.append(_bullet_collision_offset[bullet_id[0]])
+	bullet_data.append(_bullet_collision_size_multiplier[bullet_id[0]])
+	bullet_data.append(_bullet_movement_type_ref[bullet_id[0]])
+
+	return bullet_data
+
+
+func TouchMovementType(bullet_id : Vector2i, modify : bool = false, movement : MovementType = MovementType.default):
+	if !_ValidateBulletInstance(bullet_id):
 		return
 	
-	_ChangeBulletMovementType.call_deferred(bullet_id[0], movement)
+	if modify:
+		_ChangeBulletMovementType.call_deferred(bullet_id[0], movement)
+	else:
+		return _bullet_movement_type_ref[bullet_id[0]]
 
 
-func ChangeBulletSprite(bullet_id : Vector2i, sprite_index : int):
-	if bullet_id[1] != _bullet_instance[bullet_id[0]]:
-		push_warning("Invalid bullet index")
+func TouchSprite(bullet_id : Vector2i, modify : bool = false, sprite_index : int = -1):
+	if  !_ValidateBulletInstance(bullet_id):
 		return
 
-	@warning_ignore("integer_division")
-	multimesh.set_instance_custom_data(
-		bullet_id[0],
-		Color(
-			(sprite_index % _sprites_per_atlas_row),
-			(sprite_index / _sprites_per_atlas_row),
-			sprite_size.x,
-			sprite_size.y
-		))
+	if modify:
+		_bullet_sprite_index[bullet_id[0]] = sprite_index
+
+		@warning_ignore("integer_division")
+		multimesh.set_instance_custom_data(
+			bullet_id[0],
+			Color(
+				(sprite_index % _sprites_per_atlas_row),
+				(sprite_index / _sprites_per_atlas_row),
+				sprite_size.x,
+				sprite_size.y
+			))
+		
+	else:
+		return _bullet_sprite_index[bullet_id[0]]
+
+
+func TouchLifetime(bullet_id : Vector2i, modify : bool = false, lifetime : float = -1.0):
+	if  !_ValidateBulletInstance(bullet_id):
+		return
+	
+	if modify:
+		_bullet_lifetime[bullet_id[0]] = lifetime
+
+		if !lifetime > 0:
+			_dead_bullets.append(bullet_id[0])
+			multimesh.set_instance_custom_data(bullet_id[0], Color(0,0,0,0))
+	
+	else:
+		return _bullet_lifetime[bullet_id[0]]
+
+
+func TouchSpeed(bullet_id : Vector2i, modify : bool = false, speed : float = -1.0):
+	if  !_ValidateBulletInstance(bullet_id):
+		return
+
+	if modify:
+		_bullet_speed[bullet_id[0]] = speed
+	
+	else:
+		return _bullet_speed[bullet_id[0]]
+
+
+func TouchCollisionGroup(bullet_id : Vector2i, modify : bool = false, collision_group : String = "dummy"):
+	if  !_ValidateBulletInstance(bullet_id):
+		return
+
+	if modify:
+		_bullet_collision_group[bullet_id[0]] = _collision_groups[collision_group]
+	
+	else:
+		return _collision_group_names[_bullet_collision_group[bullet_id[0]]]
 
 
 
