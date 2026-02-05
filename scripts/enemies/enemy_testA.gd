@@ -3,6 +3,7 @@ extends Node2D
 
 @export var radius : float = 0.0
 @export var speed : float = 100.0
+@export var curve_strength : int = 1
 @export var health : int = 100
 @export var move_to_end : bool = false
 @export var fire_rate : float = 0.0
@@ -25,12 +26,14 @@ var _to_be_fired : float = 0.0
 
 
 var _route : Array[Vector2]
+var _total_travel_distance : float
 
 var _current_route : int = -1
 var current_route : int :
 	set (value):
 		if value < _route.size():
-			_direction = (global_position - _route[value]).normalized()
+			_direction = (_route[value] - global_position).normalized()
+			_total_travel_distance = (global_position - _route[value]).length()
 			_current_route = value
 		
 		else:
@@ -78,12 +81,15 @@ func _ready() -> void:
 
 func _physics_process(delta: float) -> void:
 	if _move:
-		global_position -= _direction * speed * delta
+		global_position += _direction * speed * delta * (
+			1 - pow(1 - (global_position - _route[current_route]).length() / _total_travel_distance, curve_strength)
+		)
 
 		if (global_position - _route[current_route]).length() < speed * delta:
 			_move = move_to_end
 			_ReachedStop(current_route)
 			current_route += 1
+
 
 func _process(delta: float) -> void:
 	if allow_shooting:
