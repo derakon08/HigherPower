@@ -13,6 +13,16 @@ func _ready() -> void:
 	$MarginContainer/HBoxContainer/MenuButtons/Quit.pressed.connect(Main._GameClose)
 
 
+func _input(event : InputEvent):
+	if (event.is_action_released("debug_button")):
+		if _loading_level:
+			return
+		
+		_loading_level = true
+		await Main.LoadNode("res://scenes/test.tscn", true)
+		queue_free()
+
+
 func _button_pressed(index : int): #This one takes an assigned button index and loads the corresponding tab in the sidebar
 	var node = tabs_node.get_child(index)
 
