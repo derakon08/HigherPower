@@ -1,3 +1,4 @@
+class_name ENEMY
 extends Node2D
 
 @export var radius : float = 0.0
@@ -11,10 +12,10 @@ extends Node2D
 @export var bullet_hit_speed : float = 100
 @export var route_node : Node
 
-var shoot : bool = false
+var allow_shooting : bool = true
 
-var _Shoot : Callable = _ModeOne
-var _shoot_mode : bool = true
+var _Attack : Callable = _ModeOne
+var _attack_mode : bool = true
 
 var _free_at_screen_edge : bool = false
 var _direction : Vector2
@@ -29,13 +30,7 @@ var _current_route : int = -1
 var current_route : int :
 	set (value):
 		if value < _route.size():
-			_direction = Vector2(1, 0).rotated(
-				atan2(
-						global_position.y - _route[value].y,
-						global_position.x - _route[value].x
-					)
-				)
-			
+			_direction = (global_position - _route[value]).normalized()
 			_current_route = value
 		
 		else:
@@ -58,7 +53,6 @@ func _ModeTwo():
 @warning_ignore("UNUSED_PARAMETER")
 func _ReachedStop(route_stop : int):
 	push_error("NO BEHAVIOUR DEFINED FOR NODE: ", self)
-
 
 func _ReachedEnd():
 	push_error("NO BEHAVIOUR DEFINED FOR NODE: ", self)
@@ -92,18 +86,18 @@ func _physics_process(delta: float) -> void:
 			current_route += 1
 
 func _process(delta: float) -> void:
-	if shoot:
+	if allow_shooting:
 		_to_be_fired += delta * fire_rate
 
-		_Shoot.call()    
+		_Attack.call()    
 
 
 func _OnWarpAction():
-	_shoot_mode = !_shoot_mode
-	if (_shoot_mode):
-		_Shoot = _ModeOne
+	_attack_mode = !_attack_mode
+	if (_attack_mode):
+		_Attack = _ModeOne
 	else:
-		_Shoot = _ModeTwo
+		_Attack = _ModeTwo
 
 
 func _Death():
@@ -132,10 +126,11 @@ func SetMovement(on : bool):
 
 ##Equivalent to setting shoot directly
 func SetShooting(on : bool):
-	shoot = on
+	allow_shooting = on
 
 
 func SetRoute(directions : Node):
+	_route.clear()
 	_move = move_to_end
 
 	for child in directions.get_children():
