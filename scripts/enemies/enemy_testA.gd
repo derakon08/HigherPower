@@ -1,20 +1,25 @@
 class_name ENEMY
 extends Node2D
 
+@export_category("Stats")
 @export var radius : float = 0.0
 @export var speed : float = 100.0
-@export var curve_strength : int = 1
+@export var movement_curve_strength : int = 1
 @export var health : int = 100
-@export var move_to_end : bool = false
 @export var fire_rate : float = 0.0
-@export var stream_density : int = 1
-@export var bullet_hit_sprite : int = 0
+
+@export_category("Flags")
+@export var move_to_end : bool = false
+@export var allow_shooting : bool = true
+
+@export_category("Effects")
+@export var bullet_hit_sprite : int = 0 + 6 * 3
 @export var bullet_hit_duration : float = 0
 @export var bullet_hit_speed : float = 100
 @export var bullet_hit_size : float = 50
-@export var route_node : Node
 
-var allow_shooting : bool = true
+@export_subgroup("Movement")
+@export var route_node : Node
 
 var _Attack : Callable = _ModeOne
 var _attack_mode : bool = true
@@ -83,7 +88,7 @@ func _ready() -> void:
 func _physics_process(delta: float) -> void:
 	if _move:
 		global_position += _direction * speed * delta * (
-			1 - pow(1 - (global_position - _route[current_route]).length() / _total_travel_distance, curve_strength)
+			1 - pow(1 - (global_position - _route[current_route]).length() / _total_travel_distance, movement_curve_strength)
 		)
 
 		if (global_position - _route[current_route]).length() < speed * delta:
