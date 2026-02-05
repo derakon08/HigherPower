@@ -170,7 +170,7 @@ func _ExitedQueue(exited_nodes : Array): #cleanup helper
 			if _displayed_nodes[index]["delete_at_exit"]:
 				_displayed_nodes[index]["node"].queue_free()
 
-			clear.emit(_displayed_nodes[index]["node"])
+			clear.emit.call_deferred(_displayed_nodes[index]["node"])
 			_displayed_nodes.erase(_displayed_nodes[index])
 
 	for node in exited_nodes: #look for nodes in queue
