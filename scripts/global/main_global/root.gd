@@ -1,5 +1,6 @@
 extends Node
 @export var player : Node
+@export var enemies_dead_zone : Rect2i
 @export var pause_menu : Control
 @export var bg : ColorRect
 @export var transition_decor : Control
