@@ -191,11 +191,13 @@ func _RemoveObjectiveFromGroup(group_name : String, node : Node) -> void:
 
 
 func _ChangeBulletMovementType(bullet_index : int, movement : MovementType) -> void:
+	#Get from the buckets, the one the bullets asks to be in
 	var bucket : Array = _movement_type_buckets[_bullet_movement_type_ref[bullet_index]]
 
 	_movement_type_buckets[movement].append(bullet_index)
+	_bullet_movement_type_ref[bullet_index] = movement
 
-	#Get the ARRAY INDEX which contains the bullet index
+	#Search the bucket for the index where the bullet index is stored at, ok
 	for index in bucket.size():
 		if bucket[index] == bullet_index:
 			_SwapItemBackAndPop(bucket, index)
@@ -417,6 +419,17 @@ func TouchCollisionGroup(bullet_id : Vector2i, modify : bool = false, collision_
 	
 	else:
 		return _collision_group_names[_bullet_collision_group[bullet_id[0]]]
+
+
+func TouchSize(bullet_id : Vector2i, modify : bool = false, size : float = -1.0):
+	if  !_ValidateBulletInstance(bullet_id):
+		return
+
+	if modify:
+		_bullet_size[bullet_id[0]] = size
+	
+	else:
+		return _bullet_size[bullet_id[0]]
 
 
 
