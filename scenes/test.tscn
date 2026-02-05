@@ -1,16 +1,19 @@
-[gd_scene load_steps=5 format=3 uid="uid://l3m3jg5guyqu"]
+[gd_scene format=3 uid="uid://l3m3jg5guyqu"]
 
 [ext_resource type="PackedScene" uid="uid://dg5cjrt6ero4q" path="res://scenes/spawners/simple_shape_spawner.tscn" id="1_f7eab"]
 [ext_resource type="Script" uid="uid://bx0f0b2trqq8i" path="res://scripts/test.gd" id="1_iyx0m"]
 [ext_resource type="Theme" uid="uid://po03rpmxg6y8" path="res://images/themes/main.tres" id="2_j5jx5"]
 [ext_resource type="Texture2D" uid="uid://cfs5mby4nsgkd" path="res://images/bullets/beams/beam.png" id="3_xg76t"]
+[ext_resource type="Texture2D" uid="uid://dvm2qj3or4f3c" path="res://images/bullets/others/aye.png" id="5_at5dv"]
+[ext_resource type="Script" uid="uid://bw3e2cyn60n1a" path="res://scripts/spawners/cartographer.gd" id="5_j5jx5"]
+[ext_resource type="Script" uid="uid://bvk50h2u1bbgs" path="res://scripts/enemies/ring_focus.gd" id="6_at5dv"]
 
-[node name="Node" type="Node" node_paths=PackedStringArray("thelabel", "dialog")]
+[node name="Node" type="Node" unique_id=604798122 node_paths=PackedStringArray("thelabel", "dialog")]
 script = ExtResource("1_iyx0m")
 thelabel = NodePath("Control/Label")
 dialog = NodePath("Control/FileDialog")
 
-[node name="Control" type="Control" parent="."]
+[node name="Control" type="Control" parent="." unique_id=823733869]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -18,7 +21,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Label" type="Label" parent="Control"]
+[node name="Label" type="Label" parent="Control" unique_id=287996125]
 top_level = true
 z_index = 1000
 layout_mode = 0
@@ -28,7 +31,7 @@ offset_right = 107.45743
 offset_bottom = 94.97368
 theme = ExtResource("2_j5jx5")
 
-[node name="FileDialog" type="FileDialog" parent="Control"]
+[node name="FileDialog" type="FileDialog" parent="Control" unique_id=543361553]
 oversampling_override = 1.0
 title = "Open a File"
 initial_position = 5
@@ -44,7 +47,7 @@ filters = PackedStringArray("*.tscn")
 show_hidden_files = true
 use_native_dialog = true
 
-[node name="SimpleShapeSpawner" parent="." instance=ExtResource("1_f7eab")]
+[node name="SimpleShapeSpawner" parent="." unique_id=1252460502 instance=ExtResource("1_f7eab")]
 position = Vector2(977.9094, 851.93896)
 texture = ExtResource("3_xg76t")
 bullet_density = 7
@@ -57,7 +60,7 @@ angular_velocity = 190.0
 bullet_max_distance = 750.0
 bullet_size = 20.0
 
-[node name="SimpleShapeSpawner2" parent="." instance=ExtResource("1_f7eab")]
+[node name="SimpleShapeSpawner2" parent="." unique_id=1450056713 instance=ExtResource("1_f7eab")]
 position = Vector2(977.9094, 851.93896)
 texture = ExtResource("3_xg76t")
 bullet_density = 7
@@ -69,5 +72,46 @@ stream_start_speed = 1200.0
 angular_velocity = -190.0
 bullet_max_distance = 750.0
 bullet_size = 20.0
+
+[node name="Node2D" type="Sprite2D" parent="." unique_id=64783876 node_paths=PackedStringArray("route_node") groups=["game_levels"]]
+position = Vector2(249.4834, 225.78079)
+texture = ExtResource("5_at5dv")
+script = ExtResource("6_at5dv")
+bullet_start_speed = 150.0
+stream_end_speed = 200.0
+bullet_lifetime = 10.0
+bullet_offset = Vector2(100, 100)
+bullet_size = 50.0
+bullet_collision_multiplier = 0.9
+bullet_density = 6
+bullets_max_angle = 350.0
+radius = 100.0
+speed = 500.0
+curve_strength = 10
+health = 100000
+move_to_end = true
+fire_rate = 1.0
+stream_density = 4
+bullet_hit_sprite = 5
+bullet_hit_duration = 0.1
+bullet_hit_speed = 200.0
+bullet_hit_size = 100.0
+route_node = NodePath("../Node2D2")
+
+[node name="Node2D2" type="Node2D" parent="." unique_id=1050426281]
+position = Vector2(1000, 500)
+script = ExtResource("5_j5jx5")
+bullet_density = 11
+fire_rate = 140.0
+collision_group = "player"
+bullets_max_angle = 360.0
+angle_between_spawns = 1.0
+stream_start_speed = 10.0
+angular_velocity = 0.01
+bullet_max_distance = 100.0
+bullet_size = 50.0
+
+[node name="Node2D" type="Node2D" parent="Node2D2" unique_id=708487538]
+position = Vector2(-9.617432, -301.5951)
 
 [connection signal="file_selected" from="Control/FileDialog" to="." method="_OnFileDialogFileSelected"]

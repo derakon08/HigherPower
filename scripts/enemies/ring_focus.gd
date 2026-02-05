@@ -37,8 +37,10 @@ extends ENEMY
 		_bullets_max_angle = deg_to_rad(degrees)
 		_spacing = _bullets_max_angle / bullet_density
 
-		if degrees != 360:
-			_angle = _bullets_max_angle * 0.25 #center the wall downwards (?
+		if degrees < 360:
+			_angle = (deg_to_rad(180) - _bullets_max_angle) * 0.5#center the wall downwards (?
+			_angle += _spacing * 0.5
+
 	get:
 		return rad_to_deg(_bullets_max_angle)
 

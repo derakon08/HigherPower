@@ -1,4 +1,4 @@
-[gd_scene load_steps=6 format=3 uid="uid://rglymhr5o6ax"]
+[gd_scene format=3 uid="uid://rglymhr5o6ax"]
 
 [ext_resource type="Theme" uid="uid://po03rpmxg6y8" path="res://images/themes/main.tres" id="1_2y7fj"]
 [ext_resource type="Texture2D" uid="uid://cwv4a6yud63ag" path="res://images/backgrounds/button.png" id="2_xg6f0"]
@@ -6,7 +6,7 @@
 [ext_resource type="Texture2D" uid="uid://bf6u8kkm5yox3" path="res://images/backgrounds/button1.png" id="3_2swxr"]
 [ext_resource type="Texture2D" uid="uid://bubxdiuilho4k" path="res://images/bullets/arrows/arrow.png" id="4_f2oq5"]
 
-[node name="Button" type="Button" groups=["menu_button"]]
+[node name="Button" type="Button" unique_id=675859137 groups=["menu_button"]]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -14,6 +14,7 @@ grow_horizontal = 2
 grow_vertical = 2
 size_flags_horizontal = 3
 size_flags_vertical = 2
+mouse_default_cursor_shape = 2
 theme = ExtResource("1_2y7fj")
 text = "EXAMPLE_BUTTON"
 flat = true
@@ -27,7 +28,7 @@ overshadowed_texture = ExtResource("3_2swxr")
 pointer_texture = ExtResource("4_f2oq5")
 button_height = 100.0
 
-[node name="Textures" type="HBoxContainer" parent="."]
+[node name="Textures" type="HBoxContainer" parent="." unique_id=35189676]
 show_behind_parent = true
 layout_direction = 2
 layout_mode = 1
@@ -37,7 +38,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Pointer" type="TextureRect" parent="Textures"]
+[node name="Pointer" type="TextureRect" parent="Textures" unique_id=176333161]
 visible = false
 layout_mode = 2
 size_flags_horizontal = 0
@@ -45,7 +46,7 @@ size_flags_vertical = 0
 expand_mode = 1
 stretch_mode = 4
 
-[node name="Icon" type="NinePatchRect" parent="Textures"]
+[node name="Icon" type="NinePatchRect" parent="Textures" unique_id=1739833175]
 layout_mode = 2
 size_flags_horizontal = 3
 patch_margin_right = 9

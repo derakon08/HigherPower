@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://bqllgswh8xclm"]
+[gd_scene format=3 uid="uid://bqllgswh8xclm"]
 
 [ext_resource type="Script" uid="uid://bijj3vamkju10" path="res://scripts/global/main_global/root.gd" id="1_svajf"]
 [ext_resource type="Script" uid="uid://bw7trhpmccp5r" path="res://scripts/global/main_global/border.gd" id="2_gt6x5"]
@@ -25,35 +25,35 @@ size = Vector2(95.7802, 1208)
 shader = ExtResource("7_11dsn")
 shader_parameter/scroll_speed = 0.01
 
-[node name="main" type="Node2D" node_paths=PackedStringArray("player", "pause_menu", "bg", "transition_decor", "narrator", "world_freeze_timer")]
+[node name="main" type="Node2D" unique_id=1313954988 node_paths=PackedStringArray("player", "pause_menu", "bg", "transition_decor", "narrator", "world_freeze_timer")]
 process_mode = 3
 script = ExtResource("1_svajf")
 player = NodePath("Pauseable/Player")
+enemies_dead_zone = Rect2i(80, 50, 1760, 900)
 pause_menu = NodePath("NonPausable/Control/PauseMenu")
 bg = NodePath("BG")
 transition_decor = NodePath("NonPausable/Control/Transitions")
 narrator = NodePath("Pauseable/Control/Narrator")
 world_freeze_timer = NodePath("NonPausable/Unfreeze")
-debug = true
 
-[node name="BG" type="ColorRect" parent="."]
+[node name="BG" type="ColorRect" parent="." unique_id=831873461]
 show_behind_parent = true
 offset_left = -150.0
 offset_top = -110.0
 offset_right = 2115.0
 offset_bottom = 1182.0
 
-[node name="Pauseable" type="Node" parent="."]
+[node name="Pauseable" type="Node" parent="." unique_id=626543957]
 process_mode = 1
 
-[node name="Player" parent="Pauseable" instance=ExtResource("3_xlgo8")]
+[node name="Player" parent="Pauseable" unique_id=1569910474 instance=ExtResource("3_xlgo8")]
 visible = false
 position = Vector2(973.185, 928.257)
 collision_mask = 0
 bullet_speed = 1500.0
 bullet_distance = 2000.0
 
-[node name="Control" type="Control" parent="Pauseable"]
+[node name="Control" type="Control" parent="Pauseable" unique_id=1630860402]
 top_level = true
 z_index = 101
 layout_mode = 3
@@ -65,7 +65,7 @@ grow_vertical = 2
 mouse_filter = 2
 theme = ExtResource("4_bjykd")
 
-[node name="Narrator" type="VBoxContainer" parent="Pauseable/Control" node_paths=PackedStringArray("narration_box")]
+[node name="Narrator" type="VBoxContainer" parent="Pauseable/Control" unique_id=158207578 node_paths=PackedStringArray("narration_box")]
 top_level = true
 z_index = 101
 layout_direction = 2
@@ -83,7 +83,7 @@ text_speed = 0.05
 clear_wait = 4.0
 puntuation_wait = 0.6
 
-[node name="NarrationBox" type="Label" parent="Pauseable/Control/Narrator"]
+[node name="NarrationBox" type="Label" parent="Pauseable/Control/Narrator" unique_id=2101912226]
 z_index = 101
 texture_filter = 2
 custom_minimum_size = Vector2(200, 50)
@@ -97,14 +97,14 @@ visible_characters_behavior = 1
 visible_ratio = 0.0
 text_direction = 1
 
-[node name="Separator" type="Control" parent="Pauseable/Control/Narrator"]
+[node name="Separator" type="Control" parent="Pauseable/Control/Narrator" unique_id=2086256064]
 z_index = 101
 custom_minimum_size = Vector2(500, 300)
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 6
 
-[node name="ScreenSlots" type="Control" parent="Pauseable/Control"]
+[node name="ScreenSlots" type="Control" parent="Pauseable/Control" unique_id=1522451394]
 top_level = true
 z_index = 101
 layout_direction = 2
@@ -116,7 +116,7 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="Center" type="CenterContainer" parent="Pauseable/Control/ScreenSlots"]
+[node name="Center" type="CenterContainer" parent="Pauseable/Control/ScreenSlots" unique_id=956014148]
 top_level = true
 z_index = 101
 layout_mode = 1
@@ -129,12 +129,12 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 mouse_filter = 2
 
-[node name="1" type="Control" parent="Pauseable/Control/ScreenSlots/Center"]
+[node name="1" type="Control" parent="Pauseable/Control/ScreenSlots/Center" unique_id=589383718]
 modulate = Color(1, 1, 1, 0)
 layout_mode = 2
 mouse_filter = 2
 
-[node name="Half" type="VBoxContainer" parent="Pauseable/Control/ScreenSlots"]
+[node name="Half" type="VBoxContainer" parent="Pauseable/Control/ScreenSlots" unique_id=1285750360]
 top_level = true
 z_index = 101
 layout_mode = 1
@@ -148,21 +148,21 @@ size_flags_vertical = 3
 mouse_filter = 2
 alignment = 1
 
-[node name="1" type="Control" parent="Pauseable/Control/ScreenSlots/Half"]
+[node name="1" type="Control" parent="Pauseable/Control/ScreenSlots/Half" unique_id=215548173]
 modulate = Color(1, 1, 1, 0)
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 6
 mouse_filter = 2
 
-[node name="2" type="Control" parent="Pauseable/Control/ScreenSlots/Half"]
+[node name="2" type="Control" parent="Pauseable/Control/ScreenSlots/Half" unique_id=264461466]
 modulate = Color(1, 1, 1, 0)
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 6
 mouse_filter = 2
 
-[node name="Quadrants" type="GridContainer" parent="Pauseable/Control/ScreenSlots"]
+[node name="Quadrants" type="GridContainer" parent="Pauseable/Control/ScreenSlots" unique_id=2118040980]
 top_level = true
 z_index = 101
 layout_mode = 1
@@ -176,7 +176,7 @@ size_flags_vertical = 3
 mouse_filter = 2
 columns = 2
 
-[node name="1" type="Control" parent="Pauseable/Control/ScreenSlots/Quadrants"]
+[node name="1" type="Control" parent="Pauseable/Control/ScreenSlots/Quadrants" unique_id=1797021984]
 modulate = Color(1, 1, 1, 0)
 z_index = 101
 layout_mode = 2
@@ -184,7 +184,7 @@ size_flags_horizontal = 6
 size_flags_vertical = 6
 mouse_filter = 2
 
-[node name="2" type="Control" parent="Pauseable/Control/ScreenSlots/Quadrants"]
+[node name="2" type="Control" parent="Pauseable/Control/ScreenSlots/Quadrants" unique_id=708059364]
 modulate = Color(1, 1, 1, 0)
 z_index = 101
 layout_mode = 2
@@ -192,7 +192,7 @@ size_flags_horizontal = 6
 size_flags_vertical = 6
 mouse_filter = 2
 
-[node name="3" type="Control" parent="Pauseable/Control/ScreenSlots/Quadrants"]
+[node name="3" type="Control" parent="Pauseable/Control/ScreenSlots/Quadrants" unique_id=362471690]
 modulate = Color(1, 1, 1, 0)
 z_index = 101
 layout_mode = 2
@@ -200,7 +200,7 @@ size_flags_horizontal = 6
 size_flags_vertical = 6
 mouse_filter = 2
 
-[node name="4" type="Control" parent="Pauseable/Control/ScreenSlots/Quadrants"]
+[node name="4" type="Control" parent="Pauseable/Control/ScreenSlots/Quadrants" unique_id=807483046]
 modulate = Color(1, 1, 1, 0)
 z_index = 101
 layout_mode = 2
@@ -208,52 +208,52 @@ size_flags_horizontal = 6
 size_flags_vertical = 6
 mouse_filter = 2
 
-[node name="NonPausable" type="Node" parent="."]
+[node name="NonPausable" type="Node" parent="." unique_id=751670527]
 process_mode = 3
 
-[node name="Unfreeze" type="Timer" parent="NonPausable"]
+[node name="Unfreeze" type="Timer" parent="NonPausable" unique_id=1893950201]
 one_shot = true
 
-[node name="Border" type="Node2D" parent="NonPausable" node_paths=PackedStringArray("top", "bottom", "left", "right")]
+[node name="Border" type="Node2D" parent="NonPausable" unique_id=1793675222 node_paths=PackedStringArray("top", "bottom", "left", "right")]
 script = ExtResource("2_gt6x5")
 top = NodePath("top")
 bottom = NodePath("bottom")
 left = NodePath("left_side")
 right = NodePath("right_side")
 
-[node name="bottom" type="Area2D" parent="NonPausable/Border"]
+[node name="bottom" type="Area2D" parent="NonPausable/Border" unique_id=570489010]
 position = Vector2(967.375, 1180.64)
 collision_layer = 0
 monitorable = false
 
-[node name="collision" type="CollisionShape2D" parent="NonPausable/Border/bottom"]
+[node name="collision" type="CollisionShape2D" parent="NonPausable/Border/bottom" unique_id=570873175]
 shape = SubResource("RectangleShape2D_4xefw")
 
-[node name="top" type="Area2D" parent="NonPausable/Border"]
+[node name="top" type="Area2D" parent="NonPausable/Border" unique_id=1420602671]
 position = Vector2(976.354, -94.4771)
 collision_layer = 0
 monitorable = false
 
-[node name="collision" type="CollisionShape2D" parent="NonPausable/Border/top"]
+[node name="collision" type="CollisionShape2D" parent="NonPausable/Border/top" unique_id=1537105992]
 shape = SubResource("RectangleShape2D_m2vlu")
 
-[node name="left_side" type="Area2D" parent="NonPausable/Border"]
+[node name="left_side" type="Area2D" parent="NonPausable/Border" unique_id=897474692]
 position = Vector2(-92.2295, 570.021)
 collision_layer = 0
 monitorable = false
 
-[node name="collision" type="CollisionShape2D" parent="NonPausable/Border/left_side"]
+[node name="collision" type="CollisionShape2D" parent="NonPausable/Border/left_side" unique_id=1616274852]
 shape = SubResource("RectangleShape2D_nivmx")
 
-[node name="right_side" type="Area2D" parent="NonPausable/Border"]
+[node name="right_side" type="Area2D" parent="NonPausable/Border" unique_id=531792672]
 position = Vector2(2026.98, 556.551)
 collision_layer = 0
 monitorable = false
 
-[node name="collision" type="CollisionShape2D" parent="NonPausable/Border/right_side"]
+[node name="collision" type="CollisionShape2D" parent="NonPausable/Border/right_side" unique_id=1323440935]
 shape = SubResource("RectangleShape2D_xj5o2")
 
-[node name="Control" type="Control" parent="NonPausable"]
+[node name="Control" type="Control" parent="NonPausable" unique_id=1901815465]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -261,7 +261,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="PauseMenu" type="Control" parent="NonPausable/Control"]
+[node name="PauseMenu" type="Control" parent="NonPausable/Control" unique_id=1560547414]
 visible = false
 z_index = 100
 layout_mode = 1
@@ -275,7 +275,7 @@ focus_neighbor_bottom = NodePath("CenterContainer/Menu/Resume")
 focus_mode = 2
 mouse_force_pass_scroll_events = false
 
-[node name="ColorRect" type="ColorRect" parent="NonPausable/Control/PauseMenu"]
+[node name="ColorRect" type="ColorRect" parent="NonPausable/Control/PauseMenu" unique_id=960757251]
 self_modulate = Color(1, 1, 1, 0.431373)
 layout_mode = 1
 anchors_preset = 15
@@ -285,7 +285,7 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.403922, 0.403922, 0.403922, 1)
 
-[node name="CenterContainer" type="CenterContainer" parent="NonPausable/Control/PauseMenu"]
+[node name="CenterContainer" type="CenterContainer" parent="NonPausable/Control/PauseMenu" unique_id=514446895]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -293,28 +293,28 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Menu" type="VBoxContainer" parent="NonPausable/Control/PauseMenu/CenterContainer"]
+[node name="Menu" type="VBoxContainer" parent="NonPausable/Control/PauseMenu/CenterContainer" unique_id=1219659945]
 custom_minimum_size = Vector2(700, 0)
 layout_mode = 2
 theme = ExtResource("4_bjykd")
 
-[node name="Resume" parent="NonPausable/Control/PauseMenu/CenterContainer/Menu" instance=ExtResource("7_6qorx")]
+[node name="Resume" parent="NonPausable/Control/PauseMenu/CenterContainer/Menu" unique_id=630915142 instance=ExtResource("7_6qorx")]
 layout_mode = 2
 text = "Resume"
 
-[node name="Restart" parent="NonPausable/Control/PauseMenu/CenterContainer/Menu" instance=ExtResource("7_6qorx")]
+[node name="Restart" parent="NonPausable/Control/PauseMenu/CenterContainer/Menu" unique_id=1130219825 instance=ExtResource("7_6qorx")]
 layout_mode = 2
 text = "Restart"
 
-[node name="MainMenu" parent="NonPausable/Control/PauseMenu/CenterContainer/Menu" instance=ExtResource("7_6qorx")]
+[node name="MainMenu" parent="NonPausable/Control/PauseMenu/CenterContainer/Menu" unique_id=285494762 instance=ExtResource("7_6qorx")]
 layout_mode = 2
 text = "Main Menu"
 
-[node name="Quit" parent="NonPausable/Control/PauseMenu/CenterContainer/Menu" instance=ExtResource("7_6qorx")]
+[node name="Quit" parent="NonPausable/Control/PauseMenu/CenterContainer/Menu" unique_id=1638499425 instance=ExtResource("7_6qorx")]
 layout_mode = 2
 text = "Quit Game"
 
-[node name="Transitions" type="Control" parent="NonPausable/Control"]
+[node name="Transitions" type="Control" parent="NonPausable/Control" unique_id=1442208332]
 modulate = Color(1, 1, 1, 0)
 top_level = true
 z_index = 101
@@ -327,7 +327,7 @@ grow_vertical = 2
 size_flags_horizontal = 0
 size_flags_vertical = 0
 
-[node name="BG" type="ColorRect" parent="NonPausable/Control/Transitions"]
+[node name="BG" type="ColorRect" parent="NonPausable/Control/Transitions" unique_id=1839551505]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -335,7 +335,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="MovingPart" type="TextureRect" parent="NonPausable/Control/Transitions/BG"]
+[node name="MovingPart" type="TextureRect" parent="NonPausable/Control/Transitions/BG" unique_id=1002742543]
 material = SubResource("ShaderMaterial_bouti")
 layout_mode = 1
 anchors_preset = 15
@@ -347,7 +347,7 @@ texture = ExtResource("8_23b27")
 expand_mode = 1
 stretch_mode = 1
 
-[node name="MainCamera" type="Camera2D" parent="."]
+[node name="MainCamera" type="Camera2D" parent="." unique_id=821147943]
 anchor_mode = 0
 editor_draw_limits = true
 
