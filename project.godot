@@ -8,11 +8,15 @@
 
 config_version=5
 
+[animation]
+
+compatibility/default_parent_skeleton_in_mesh_instance_3d=true
+
 [application]
 
 config/name="Higher Power"
 run/main_scene="res://main_wrapper.tscn"
-config/features=PackedStringArray("4.5", "Forward Plus")
+config/features=PackedStringArray("4.6", "Forward Plus")
 config/icon="res://icon.svg"
 
 [autoload]
@@ -30,8 +34,10 @@ gdscript/warnings/unused_signal=0
 
 window/size/viewport_width=1920
 window/size/viewport_height=1080
-window/size/mode=2
-window/size/initial_position_type=3
+window/size/initial_position_type=5
+window/size/borderless=true
+window/energy_saving/keep_screen_on=false
+window/subwindows/embed_subwindows=false
 window/stretch/mode="viewport"
 
 [dotnet]
