@@ -11,6 +11,7 @@ extends Node2D
 @export var bullet_hit_sprite : int = 0
 @export var bullet_hit_duration : float = 0
 @export var bullet_hit_speed : float = 100
+@export var bullet_hit_size : float = 50
 @export var route_node : Node
 
 var allow_shooting : bool = true
@@ -92,13 +93,20 @@ func _physics_process(delta: float) -> void:
 
 
 func _process(delta: float) -> void:
-	if allow_shooting:
+	if _free_at_screen_edge && !_game_area.has_point(global_position):
+		_Death()
+	
+	else:
+		_free_at_screen_edge = _game_area.has_point(global_position)
+
+
+	if allow_shooting && Main.enemies_dead_zone.has_point(global_position):
 		_to_be_fired += delta * fire_rate
 
 		_Attack.call()    
 
 
-func _OnWarpAction():
+func _OnWarpAction() -> void:
 	_attack_mode = !_attack_mode
 	if (_attack_mode):
 		_Attack = _ModeOne
@@ -106,10 +114,9 @@ func _OnWarpAction():
 		_Attack = _ModeTwo
 
 
-func _Death():
+func _Death() -> void:
 	BulletMap.RemoveObjectiveFromGroup("enemies", self)
 	queue_free()
-
 
 
 
@@ -122,6 +129,7 @@ func Hit(bullet : Vector2i):
 	BulletMap.TouchSprite(bullet, true, bullet_hit_sprite)
 	BulletMap.TouchSpeed(bullet, true, bullet_hit_speed)
 	BulletMap.TouchLifetime(bullet, true, bullet_hit_duration)
+	BulletMap.TouchSize(bullet, true, bullet_hit_size)
 
 	if health < 1:
 		_Death()
