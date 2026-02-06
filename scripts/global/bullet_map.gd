@@ -457,7 +457,7 @@ func ResetPoolSize() -> void: #reset and fill arrays
 	_pool_size = preloaded_pool_size
 
 	for index in preloaded_pool_size:
-		_bullet_lifetime[index] = 0
+		_bullet_lifetime[index] = 0.1
 		_bullet_instance[index] = 1
 
 		_dead_bullets[index] = index
