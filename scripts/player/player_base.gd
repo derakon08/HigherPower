@@ -70,6 +70,7 @@ func _BombStart():
 
 	BulletMap.ClearGameBullets()
 
+	Main.warp.emit()
 	bomb_cooldown_timer.start()
 	_transition_node.AllowShooting()
 
