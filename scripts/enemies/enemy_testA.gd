@@ -91,6 +91,7 @@ func _ready() -> void:
 	_game_area = Main.game_area.grow(radius * 2)
 	_free_at_screen_edge = _game_area.has_point(global_position)
 	BulletMap.AddObjectiveToGroup("enemies", self, radius)
+	Main.warp.connect(_OnWarpAction)
 	_move = move_to_end
 	current_route = 0
 
