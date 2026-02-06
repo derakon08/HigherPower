@@ -22,6 +22,7 @@ var _current_level_node : Node
 #The idea to use the signal is to add a freeze function to every node that needs it
 signal freeze_world
 signal unfreeze_world
+signal warp
 signal DEBUG
 
 enum game_state {ON_MENU, ON_GAME, ON_PAUSE}
@@ -82,7 +83,6 @@ func LoadNode(path : String, can_pause : bool) -> void:
 		$Pauseable.add_child(scene_instance)
 
 		if scene_instance.is_in_group("game_level"):
-			_current_level_node.queue_free()
 			_current_level_node = get_node("Pauseable/" + scene_instance.name)
 			_current_level_scene = path
 
@@ -107,7 +107,8 @@ func GameEnd() -> void:
 		push_error("No current level is playing")
 		return
 
-	LoadNode("res://scenes/main_menu/main_menu.tscn", false)
+	await LoadNode("res://scenes/main_menu/main_menu.tscn", false)
+	_current_level_node.queue_free()
 	_ResumeGame()
 	_game_state_flag = game_state.ON_MENU
 	player.Switch(false)
@@ -130,11 +131,13 @@ func Restart() -> void:
 #helpers
 func _PauseGame() -> void:
 	_game_state_flag = game_state.ON_PAUSE
+	BulletMap.Pause()
 	pause_menu.visible = true
 	pause_menu.grab_focus()
 	$Pauseable.process_mode = Node.PROCESS_MODE_DISABLED
 
 func _ResumeGame() -> void:
+	BulletMap.Unpause()
 	_game_state_flag = game_state.ON_GAME
 	pause_menu.visible = false
 	$Pauseable.process_mode = Node.PROCESS_MODE_PAUSABLE
