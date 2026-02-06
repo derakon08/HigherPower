@@ -72,7 +72,7 @@ func _ready() -> void:
 		sprite_size /= _atlas_size
 
 	_SetupMovementBuckets()
-	ResetPoolSize()
+	Reset()
 
 
 	_paused = false
@@ -438,6 +438,7 @@ func ResetPoolSize() -> void: #reset and fill arrays
 	for bucket in _movement_type_buckets:
 		bucket.clear()
 
+
 	_bullet_collision_size_multiplier.resize(preloaded_pool_size)
 	_bullet_movement_type_ref.resize(preloaded_pool_size)
 	_bullet_collision_offset.resize(preloaded_pool_size)
@@ -460,6 +461,15 @@ func ResetPoolSize() -> void: #reset and fill arrays
 		_bullet_instance[index] = 1
 
 		_dead_bullets[index] = index
+
+
+func Reset():
+	ResetPoolSize()
+
+	for array in _collision_group_nodes.size():
+		_collision_group_node_positions[array].clear()
+		_collision_group_node_radius[array].clear()
+		_collision_group_nodes[array].clear()
 
 
 ##Instantly removes all bullets
@@ -532,11 +542,13 @@ func RemoveObjectiveFromGroup(group_name : String, node : Node) -> void:
 ##Stop processing on this script
 func Pause():
 	_paused = true
+	_allow_shooting = false
 
 
 ##Use to resume processing 
 func Unpause():
 	_paused = false
+	_allow_shooting = true
 
 ##Use to stop/allow shooting for external scripts. Use IsClearingBullets() to avoid desync
 func AllowShooting(allow : bool):
