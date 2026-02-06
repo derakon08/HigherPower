@@ -107,14 +107,14 @@ func GameEnd() -> void:
 		push_error("No current level is playing")
 		return
 	
-	_current_level_node.queue_free()
 	_ResumeGame()
 	narrator.Talk(" ")
 	_game_state_flag = game_state.ON_MENU
 	player.Switch(false)
 
-	await LoadNode("res://scenes/main_menu/main_menu.tscn", false)
+	LoadNode("res://scenes/main_menu/main_menu.tscn", false)
 	BulletMap.Reset()
+	_current_level_node.queue_free()
 	_current_level_node = null
 	_current_level_scene = &""
 
@@ -127,7 +127,7 @@ func Restart() -> void:
 	_ResumeGame()
 	narrator.Talk(" ")
 
-	await LoadNode(_current_level_scene, true)
+	LoadNode(_current_level_scene, true)
 	BulletMap.Reset()
 	_current_level_node.queue_free()
 
