@@ -1,3 +1,4 @@
+##Keep in mind the sprite's forward should still be positive x
 class_name ENEMY
 extends Node2D
 
@@ -11,15 +12,24 @@ extends Node2D
 @export_category("Flags")
 @export var move_to_end : bool = false
 @export var allow_shooting : bool = true
+@export var look_at_player : bool = false
 
 @export_category("Effects")
-@export var bullet_hit_sprite : int = 0 + 6 * 3
+@export var bullet_hit_sprite : int = 0
 @export var bullet_hit_duration : float = 0
 @export var bullet_hit_speed : float = 100
 @export var bullet_hit_size : float = 50
+@export var turning_speed : float = 0.01 :
+	set (value):
+		_turning_speed = deg_to_rad(value)
+	
+	get:
+		return rad_to_deg(_turning_speed)
 
 @export_subgroup("Movement")
 @export var route_node : Node
+
+var _turning_speed : float
 
 var _Attack : Callable = _ModeOne
 var _attack_mode : bool = true
@@ -72,7 +82,7 @@ func _ReachedEnd():
 func _ready() -> void:
 	if !route_node:
 		_route.append(
-			Main.player.global_position
+			Main.player.global_position + global_position * 10
 			)
 	else:
 		for child in route_node.get_children():
@@ -86,6 +96,9 @@ func _ready() -> void:
 
 
 func _physics_process(delta: float) -> void:
+	if look_at_player:
+		global_rotation = lerp_angle(global_rotation, (Main.player.global_position - global_position).angle(), _turning_speed)
+
 	if _move:
 		global_position += _direction * speed * delta * (
 			1 - pow(1 - (global_position - _route[current_route]).length() / _total_travel_distance, movement_curve_strength)
