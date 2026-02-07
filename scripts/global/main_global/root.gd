@@ -84,6 +84,7 @@ func LoadNode(path : String, can_pause : bool) -> void:
 		if scene_instance.is_in_group("game_level"):
 			_current_level_node = get_node("Pauseable/" + scene_instance.name)
 			_current_level_scene = path
+			player.BombReady()
 
 	else:
 		$NonPausable.add_child(scene_instance)
