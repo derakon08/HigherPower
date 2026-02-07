@@ -72,7 +72,7 @@ func _ready() -> void:
 		sprite_size /= _atlas_size
 
 	_SetupMovementBuckets()
-	Reset()
+	ResetPoolSize()
 
 
 	_paused = false
@@ -110,7 +110,7 @@ func _MeshAndCollide() -> void:
 	var nodes_radius : Array
 
 	for index in _pool_size:
-		if _bullet_lifetime[index] <= 0:
+		if !_bullet_lifetime[index] > 0:
 			continue
 
 		#bunch of cache
@@ -435,6 +435,8 @@ func TouchSize(bullet_id : Vector2i, modify : bool = false, size : float = -1.0)
 
 ##Dead bullets stay in memory to be recycled, ResetPoolSize is meant as a literal way of clean up. 
 func ResetPoolSize() -> void: #reset and fill arrays
+	var color : Color = Color(0, 0, 0, 0)
+
 	for bucket in _movement_type_buckets:
 		bucket.clear()
 
@@ -457,8 +459,9 @@ func ResetPoolSize() -> void: #reset and fill arrays
 	_pool_size = preloaded_pool_size
 
 	for index in preloaded_pool_size:
-		_bullet_lifetime[index] = 0.1
-		_bullet_instance[index] = 1
+		multimesh.set_instance_custom_data(index, color)
+		_bullet_lifetime[index] = 0
+		_bullet_instance[index] = 0
 
 		_dead_bullets[index] = index
 

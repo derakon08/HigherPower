@@ -39,7 +39,6 @@ func _ready() -> void:
 
 	BulletMap.AddNewCollisionGroup("enemies")
 	BulletMap.AddNewCollisionGroup("player")
-	BulletMap.AddObjectiveToGroup.call_deferred("player", Main.player, get_node("/root/Main/Pauseable/Player/CollisionShape2D").shape.radius)
 
 	world_freeze_timer.timeout.connect(unfreeze_world.emit)
 
@@ -114,6 +113,7 @@ func GameEnd() -> void:
 
 	LoadNode("res://scenes/main_menu/main_menu.tscn", false)
 	BulletMap.Reset()
+	BulletMap.AddObjectiveToGroup("player", Main.player, get_node("/root/Main/Pauseable/Player/CollisionShape2D").shape.radius)
 	_current_level_node.queue_free()
 	_current_level_node = null
 	_current_level_scene = &""
@@ -129,6 +129,7 @@ func Restart() -> void:
 
 	LoadNode(_current_level_scene, true)
 	BulletMap.Reset()
+	BulletMap.AddObjectiveToGroup("player", Main.player, get_node("/root/Main/Pauseable/Player/CollisionShape2D").shape.radius)
 	_current_level_node.queue_free()
 
 #helpers
