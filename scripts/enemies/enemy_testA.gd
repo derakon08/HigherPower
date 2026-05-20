@@ -142,7 +142,6 @@ func _Death() -> void:
 
 
 func Hit(bullet : Vector2i):
-	#Main.InvertBackgroundColor() #this hurts so much, and im not even epileptic
 	health -= 1
 	BulletMap.TouchCollisionGroup(bullet, true)
 	BulletMap.TouchSprite(bullet, true, bullet_hit_sprite)

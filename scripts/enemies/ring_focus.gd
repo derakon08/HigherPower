@@ -29,7 +29,6 @@ extends ENEMY
 	set (value):
 		_stream_start_speed = value
 		_speed_step = _stream_end_speed - value / stream_density
-		print(_speed_step)
 	
 	get:
 		return _stream_start_speed
@@ -38,7 +37,6 @@ extends ENEMY
 	set (value):
 		_stream_end_speed = value
 		_speed_step = value - _stream_start_speed / stream_density
-		print(_speed_step)
 	
 	get:
 		return _stream_end_speed
@@ -101,11 +99,11 @@ func _OnWarpAction():
 	super._OnWarpAction()
 
 	if _attack_mode:
-		_angle /= 1.5
+		_angle *= 2
 		_spacing *= 2
 	
 	else:
-		_angle *= 1.5
+		_angle /= 2
 		_spacing /= 2
 			
 

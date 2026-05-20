@@ -142,7 +142,12 @@ func _ready() -> void:
 	if !objective:
 		objective = Main.player
 	
-	_speed_step = stream_final_speed - stream_start_speed / stream_number
+	var stream_speed_difference : float = stream_final_speed - stream_start_speed
+
+	if stream_speed_difference > 0:
+		_speed_step = stream_final_speed - stream_start_speed / stream_number
+	else:
+		_speed_step = 0.0
 	_allow_shooting = auto_start
 
 
