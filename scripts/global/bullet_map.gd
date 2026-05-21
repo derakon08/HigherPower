@@ -8,17 +8,17 @@ extends MultiMeshInstance2D
 @export var sprite_size : Vector2 = Vector2(1, 1)
 
 #bullet data
-var _bullet_angular_velocity : Array[float]
-var _bullet_collision_group : Array[int]
-var _bullet_position : Array[Vector2]
-var _bullet_rotation : Array[float]
-var _bullet_lifetime : Array[float]
-var _bullet_speed : Array[float]
-var _bullet_size : Array[float]
-var _bullet_sprite_index : Array[int]
-var _bullet_instance : Array[int]
-var _bullet_collision_offset : Array[Vector2]
-var _bullet_collision_size_multiplier: Array[float]
+var _bullet_angular_velocity : PackedFloat64Array
+var _bullet_collision_group : PackedInt32Array
+var _bullet_position : PackedVector2Array
+var _bullet_rotation : PackedFloat64Array
+var _bullet_lifetime : PackedFloat64Array
+var _bullet_speed : PackedFloat64Array
+var _bullet_size : PackedFloat64Array
+var _bullet_sprite_index : PackedInt32Array
+var _bullet_instance : PackedInt32Array
+var _bullet_collision_offset : PackedVector2Array
+var _bullet_collision_size_multiplier: PackedFloat64Array
 var _bullet_movement_type_ref : Array[MovementType]
 
 #collision variables
@@ -26,7 +26,7 @@ var _collision_group_node_positions : Array[Array] = [[]]
 var _collision_group_node_radius : Array[Array] = [[]]
 var _collision_group_nodes : Array[Array] = [[]]
 
-var _collision_group_names : Array[String] = ["dummy"]
+var _collision_group_names : PackedStringArray = ["dummy"]
 var _collision_groups : Dictionary = {"dummy" : 0}
 
 #Atlas variables
@@ -35,7 +35,8 @@ var _sprites_per_atlas_row : int
 #utilities
 const _vector2_right : Vector2 = Vector2(1, 0)
 var _spare_transform : Transform2D
-var _dead_bullets : Array[int]
+var _dead_bullets : PackedInt32Array
+var _active_bullets : PackedInt32Array
 var _pool_size : int
 
 #state flags
@@ -109,10 +110,7 @@ func _MeshAndCollide() -> void:
 	var nodes_position : Array
 	var nodes_radius : Array
 
-	for index in _pool_size:
-		if !_bullet_lifetime[index] > 0:
-			continue
-
+	for index in _active_bullets:
 		#bunch of cache
 		bullet_collision_group = _bullet_collision_group[index]
 		bullet_position = _bullet_position[index]
@@ -122,6 +120,7 @@ func _MeshAndCollide() -> void:
 		nodes_position = _collision_group_node_positions[bullet_collision_group]
 		nodes_radius = _collision_group_node_radius[bullet_collision_group]
 
+		#rotation subtracted to keep it paralel to this node
 		_spare_transform = Transform2D(_bullet_rotation[index] - global_rotation, to_local(bullet_position))
 		_spare_transform.x *= bullet_size
 		_spare_transform.y *= bullet_size
@@ -135,15 +134,19 @@ func _MeshAndCollide() -> void:
 
 
 func _ManageBulletLifetimes(delta : float):
-	for index in _pool_size:
-		if _bullet_lifetime[index] > 0:
-			if _bullet_lifetime[index] > delta:
-				_bullet_lifetime[index] -= delta
-			
-			else:
-				_bullet_lifetime[index] = 0
-				_dead_bullets.append(index)
-				multimesh.set_instance_custom_data(index, Color(0,0,0,0)) #please please please please
+	var bullet_index : int = 0
+
+	for index in range(_active_bullets.size() -1, -1, -1):
+		bullet_index = _active_bullets[index]
+		if _bullet_lifetime[bullet_index] > delta:
+			_bullet_lifetime[bullet_index] -= delta
+		
+		else:
+			_bullet_lifetime[bullet_index] = 0
+			_dead_bullets.append(bullet_index)
+			_active_bullets[index] = _active_bullets[_active_bullets.size() - 1]
+			_active_bullets.resize(_active_bullets.size() - 1)
+			multimesh.set_instance_custom_data(bullet_index, Color(0,0,0,0))
 
 
 #Resizing is both expensive, and will introduce bugs... apparently. Anyway, every resize resets all instance custom data and flickers if not handled correctly
@@ -153,7 +156,7 @@ func _IncreaseMultimeshInstanceCount():
 	else:
 		multimesh.instance_count *= 2 #I believe this makes sense, as the more you resize, the more likely it is that you're using an insane amount of bullets
 
-	for index in _pool_size: #please don't tank my fps please
+	for index in _pool_size:
 		@warning_ignore("integer_division")
 		multimesh.set_instance_custom_data(
 			index,
@@ -165,7 +168,7 @@ func _IncreaseMultimeshInstanceCount():
 			))
 
 
-#Removes objective from the *collision* group
+#Removes objective from collision checking
 func _RemoveObjectiveFromGroup(group_name : String, node : Node) -> void:
 	if !_collision_groups.has(group_name):
 		push_warning("Invalid collision group for node removal: " + group_name)
@@ -208,12 +211,11 @@ func _ClearBullets(kill : bool = false) -> void:
 	_paused = true
 	_clearing_bullets = true
 
-	for index in _pool_size:
-		if (_bullet_lifetime[index] > 0):
-			multimesh.set_instance_transform_2d(index, _spare_transform * 0)
-			_bullet_lifetime[index] = -1
-			if !kill && index % 2 == 0:
-				await get_tree().process_frame
+	for index in _active_bullets:
+		multimesh.set_instance_transform_2d(index, _spare_transform * 0)
+		_bullet_lifetime[index] = -1
+		if !kill && index % 2 == 0:
+			await get_tree().process_frame
 
 	_allow_shooting = true
 	_paused = false
@@ -225,7 +227,7 @@ func _ClearBullets(kill : bool = false) -> void:
 #Called at ready(), will check every movement type and append an array for each
 func _SetupMovementBuckets() -> void:
 	for type in MovementType.size():
-		var new_array : Array[int] = []
+		var new_array : PackedInt32Array = []
 		_movement_type_buckets.append(new_array)
 		_movement_type_methods[type] = _movement_type_methods[type].bind(type)
 
@@ -273,7 +275,8 @@ func Shoot(bullet_position : Vector2, bullet_speed : float, bullet_lifetime : fl
 	var i : int
 
 	if !_dead_bullets.is_empty():
-		i = _dead_bullets.pop_back()
+		i = _dead_bullets[_dead_bullets.size() -1]
+		_dead_bullets.resize(_dead_bullets.size() -1)
 
 		_bullet_collision_size_multiplier[i] = collision_size_multiplier
 		_bullet_collision_offset[i] = collision_offset
@@ -311,6 +314,7 @@ func Shoot(bullet_position : Vector2, bullet_speed : float, bullet_lifetime : fl
 			_IncreaseMultimeshInstanceCount()
 	
 	_movement_type_buckets[bullet_movement].append(i)
+	_active_bullets.append(i)
 
 	@warning_ignore("integer_division")
 	multimesh.set_instance_custom_data(
@@ -455,6 +459,8 @@ func ResetPoolSize() -> void: #reset and fill arrays
 	_bullet_size.resize(preloaded_pool_size)
 
 	_dead_bullets.resize(preloaded_pool_size)
+	_active_bullets.clear()
+
 	multimesh.instance_count = preloaded_pool_size
 	_pool_size = preloaded_pool_size
 
@@ -573,15 +579,17 @@ func IsClearingBullets():
 func _MovementDefault(bucket_index : int) -> void:
 	var bullet : int 
 	var delta : float = get_physics_process_delta_time()
-	var bucket : Array[int] = _movement_type_buckets[bucket_index]
-	for index in range(_movement_type_buckets[bucket_index].size() -1, -1, -1):
+	var bucket : PackedInt32Array = _movement_type_buckets[bucket_index]
+
+	for index in range(bucket.size() -1, -1, -1):
 		bullet = bucket[index]
 		if _bullet_lifetime[bullet] > 0:
 			_bullet_position[bullet] += _vector2_right.rotated(_bullet_rotation[bullet]) * _bullet_speed[bullet] * delta
 			_bullet_rotation[bullet] += _bullet_angular_velocity[bullet]
-			index += 1
+			#index += 1
 		else:
-			_SwapItemBackAndPop(_movement_type_buckets[bucket_index], index)
+			bucket[index] = bucket[bucket.size() - 1] #copy the last item of the array at the index to delete
+			bucket.resize(bucket.size() -1) #delete duplicate
 
 
 func DEBUG():

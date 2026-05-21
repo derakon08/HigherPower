@@ -6,6 +6,7 @@ var _loading_level : bool = false
 
 
 func _ready() -> void:
+	Main.player.Switch(false)
 	$SelfDestruct.call_deferred("grab_focus")
 	_LoadLevelButtons()
 	tabs_node.current_tab = -1 #Set to empty
