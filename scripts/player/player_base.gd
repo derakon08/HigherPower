@@ -18,6 +18,8 @@ extends Area2D
 	get:
 		return _shoot_mode
 
+var aprox_radius : float = 0
+
 var _focus = false
 var _allow_shooting : bool = false
 
@@ -33,7 +35,6 @@ var _bomb_ready : bool = true
 @warning_ignore_start("unused_private_class_variable")
 var _atlas_sprite : int = 4
 var _account_for_rotation : float = deg_to_rad(global_rotation - 90)
-var _aprox_radius = 20
 @warning_ignore_restore("unused_private_class_variable")
 
 signal player_hit
@@ -45,6 +46,7 @@ func _ready() -> void:
 	_particle_explosion = $ParticlesExplosion
 	_transition_node = $Transition
 	_transition_node.AllowMovement()
+	aprox_radius = get_node("CollisionShape2D").shape.radius
 
 	_transition_node.end_of_pool.connect(_BombEnd)
 	invinsibility_timer.timeout.connect(_Vulnerable.bind(true))
