@@ -8,7 +8,7 @@ func _ModeOne():
 		var aim : float = _GetPlayerAim()
 
 		BulletMap.Shoot(
-			global_position + Vector2.RIGHT.rotated(aim) * _aprox_radius,
+			global_position + Vector2.RIGHT.rotated(aim) * aprox_radius,
 			bullet_speed,
 			bullet_distance, 
 			aim if _focus else aim + randf_range(-20,20) * 0.01745,
@@ -26,7 +26,7 @@ func _ModeTwo():
 
 		for bullet in bullets_in_arc:
 			BulletMap.Shoot(
-				global_position + Vector2.RIGHT.rotated(aim + angle) * _aprox_radius,
+				global_position + Vector2.RIGHT.rotated(aim + angle) * aprox_radius,
 				bullet_speed,
 				bullet_distance, 
 				aim + angle,

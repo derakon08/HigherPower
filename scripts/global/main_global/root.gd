@@ -39,6 +39,7 @@ func _ready() -> void:
 
 	BulletMap.AddNewCollisionGroup("enemies")
 	BulletMap.AddNewCollisionGroup("player")
+	BulletMap.AddObjectiveToGroup("player", player, player.aprox_radius)
 
 	world_freeze_timer.timeout.connect(unfreeze_world.emit)
 
@@ -82,6 +83,7 @@ func LoadNode(path : String, can_pause : bool) -> void:
 		$Pauseable.add_child(scene_instance)
 
 		if scene_instance.is_in_group("game_level"):
+			BulletMap.AddObjectiveToGroup("player", Main.player, player.aprox_radius)
 			_current_level_node = get_node("Pauseable/" + scene_instance.name)
 			_current_level_scene = path
 			player.BombReady()
@@ -114,7 +116,7 @@ func GameEnd() -> void:
 
 	LoadNode("res://scenes/main_menu/main_menu.tscn", false)
 	BulletMap.Reset()
-	BulletMap.AddObjectiveToGroup("player", Main.player, get_node("/root/Main/Pauseable/Player/CollisionShape2D").shape.radius)
+	BulletMap.AddObjectiveToGroup("player", player, player.aprox_radius)
 	_current_level_node.queue_free()
 	_current_level_node = null
 	_current_level_scene = &""
@@ -130,7 +132,7 @@ func Restart() -> void:
 
 	LoadNode(_current_level_scene, true)
 	BulletMap.Reset()
-	BulletMap.AddObjectiveToGroup("player", Main.player, get_node("/root/Main/Pauseable/Player/CollisionShape2D").shape.radius)
+	BulletMap.AddObjectiveToGroup("player", player, player.aprox_radius)
 	_current_level_node.queue_free()
 
 #helpers
