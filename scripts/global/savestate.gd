@@ -5,6 +5,11 @@ var _completed_levels : Array[bool] = [false, false, false, false, false]
 var _completed_tutorial : bool = false
 var _completed_prologue : bool = false
 
+var _player_speed_modifier : int
+
+#Please update manually, this is a safeguard
+var _dictionary_expected_size : int = 4
+
 func _ready() -> void:
 	Load()
 	Save()
@@ -20,9 +25,15 @@ func Save():
 			"completed_levels": _completed_levels,
 			"completed_tutorial": _completed_tutorial,
 			"completed_prologue": _completed_prologue,
+			"player_speed_mod": _player_speed_modifier
 		}
 		save_file.store_var(dict)
 		save_file.close()
+
+		push_warning("Saved data!")
+	
+	else:
+		push_error("Data error. Lmao")
 
 func Load():
 	if !FileAccess.file_exists(save_path):
@@ -33,17 +44,19 @@ func Load():
 	if !save_file:
 		return
 	
-	var saved_data = save_file.get_var()
-
-	if typeof(saved_data) != TYPE_DICTIONARY:
-		push_warning("Saved data is not of the expected type. Expected: Dictionary. Got: " + str(typeof(saved_data)))
-		save_file.close()
-		return
+	var saved_data : Dictionary = save_file.get_var()
 	save_file.close()
 
+	if saved_data.size() != _dictionary_expected_size:
+		push_error("Saved data doesn't match the current version. Clearing previusly stored data...")
+		Save()
+		return
+
+	
 	_completed_levels = saved_data["completed_levels"]
 	_completed_tutorial = saved_data["completed_tutorial"]
 	_completed_prologue = saved_data["completed_prologue"]
+	_player_speed_modifier = saved_data["player_speed_mod"]
 
 func WipeData():
 	DirAccess.open(save_dir_path).remove(save_path)
