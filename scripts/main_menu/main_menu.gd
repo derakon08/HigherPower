@@ -41,7 +41,6 @@ func _level_button_pressed(scene : String):
 	else:
 		_loading_level = true
 		var path : String = "res://scenes/levels/" + scene + '/' + scene + ".tscn"
-		print(path)
 		await Main.LoadNode(path, true)
 		queue_free() #Wait for root to obscure the screen
 

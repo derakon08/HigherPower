@@ -3,6 +3,7 @@ extends "res://scripts/player/player_base.gd"
 @export var bullet_distance : float = 2
 @export var bullets_in_arc : int
 
+
 func _ModeOne():
 	if (_to_be_fired > 1 && _focus) || (_to_be_fired > 0.9 && !_focus):
 		var aim : float = _GetPlayerAim()
@@ -17,6 +18,7 @@ func _ModeOne():
 			_atlas_sprite)
 
 		_to_be_fired = 0
+
 
 func _ModeTwo():
 	if (!_focus && _to_be_fired > bullets_in_arc) || (_focus && _to_be_fired > bullets_in_arc + bullets_in_arc * 0.3):

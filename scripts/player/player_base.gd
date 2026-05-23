@@ -29,13 +29,12 @@ var _shoot_mode : bool
 var _to_be_fired : float
 var _transition_node : Node
 var _particle_explosion : GPUParticles2D
+var _particle_trail : GPUParticles2D
 var _vulnerable : bool = false
 var _bomb_ready : bool = true
 
 @warning_ignore_start("unused_private_class_variable")
 var _atlas_sprite : int = 4
-var _account_for_rotation : float = deg_to_rad(global_rotation - 90)
-@warning_ignore_restore("unused_private_class_variable")
 
 signal player_hit
 
@@ -44,6 +43,7 @@ signal player_hit
 
 func _ready() -> void:
 	_particle_explosion = $ParticlesExplosion
+	_particle_trail = $Trail
 	_transition_node = $Transition
 	_transition_node.AllowMovement()
 	aprox_radius = get_node("CollisionShape2D").shape.radius
@@ -56,7 +56,12 @@ func _ready() -> void:
 func _physics_process(delta: float) -> void:
 	var velocity : Vector2 = Input.get_vector("left", "right", "up", "down")
 
-	position += velocity * (focus_speed if _focus else normal_speed) * delta
+	if velocity.length() > GAMEPAD_DEADZONE:
+		position += velocity * (focus_speed if _focus else normal_speed) * delta
+		_particle_trail.emitting = true
+	
+	else:
+		_particle_trail.emitting = false
 
 
 func _process(delta: float) -> void:
