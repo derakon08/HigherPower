@@ -87,7 +87,7 @@ func _physics_process(delta: float) -> void:
 		_ManageBulletLifetimes(delta)
 
 		for enum_number in MovementType.size():
-			_movement_type_methods[enum_number].call()
+			_movement_type_methods[enum_number].call(delta)
 
 
 func _process(_delta: float) -> void:
@@ -111,7 +111,6 @@ func _MeshAndCollide() -> void:
 	var nodes_radius : Array
 
 	for index in _active_bullets:
-		#bunch of cache
 		bullet_collision_group = _bullet_collision_group[index]
 		bullet_position = _bullet_position[index]
 		bullet_size = _bullet_size[index]
@@ -268,7 +267,7 @@ func _ValidateBulletInstance(bullet_id : Vector2i) -> bool:
 ##Returns the BULLET ID in the shape of a Vector2, both numbers are necessary to ensure modification is possible.
 ##Where s = sprites in line: (x + sy) = sprite in atlas.
 ##Collision offset : Vector2(push back, size reduction)
-func Shoot(bullet_position : Vector2, bullet_speed : float, bullet_lifetime : float, bullet_rotation : float, bullet_size : float, collision_group : String = "dummy", sprite_in_atlas : int = 0, angular_velocity : float = 0, collision_offset : Vector2 = Vector2(0, 0), collision_size_multiplier : float = 1.0, bullet_movement : MovementType = MovementType.default) -> Vector2i:
+func Shoot(bullet_pos : Vector2, bullet_speed : float, bullet_lifetime : float, bullet_rotation : float, bullet_size : float, collision_group : String = "dummy", sprite_in_atlas : int = 0, angular_velocity : float = 0, collision_offset : Vector2 = Vector2(0, 0), collision_size_multiplier : float = 1.0, bullet_movement : MovementType = MovementType.default) -> Vector2i:
 	if !_allow_shooting:
 		return _vector2_right * 0
 	
@@ -279,13 +278,13 @@ func Shoot(bullet_position : Vector2, bullet_speed : float, bullet_lifetime : fl
 		_dead_bullets.resize(_dead_bullets.size() -1)
 
 		_bullet_collision_size_multiplier[i] = collision_size_multiplier
-		_bullet_collision_offset[i] = collision_offset
-		_bullet_collision_group[i] = _collision_groups[collision_group]
 		_bullet_movement_type_ref[i] = bullet_movement
+		_bullet_collision_offset[i] = collision_offset
 		_bullet_angular_velocity[i] = angular_velocity
-		_bullet_position[i] = bullet_position
-		_bullet_rotation[i] = bullet_rotation
+		_bullet_collision_group[i] = _collision_groups[collision_group]
 		_bullet_lifetime[i] = bullet_lifetime
+		_bullet_rotation[i] = bullet_rotation
+		_bullet_position[i] = bullet_pos
 		_bullet_speed[i] = bullet_speed
 		_bullet_size[i] = bullet_size
 
@@ -296,13 +295,13 @@ func Shoot(bullet_position : Vector2, bullet_speed : float, bullet_lifetime : fl
 		i = _pool_size
 
 		_bullet_collision_size_multiplier.append(collision_size_multiplier)
-		_bullet_collision_offset.append(collision_offset)
 		_bullet_movement_type_ref.append(bullet_movement)
-		_bullet_angular_velocity.append( angular_velocity)
+		_bullet_angular_velocity.append(angular_velocity)
+		_bullet_collision_offset.append(collision_offset)
 		_bullet_collision_group.append(_collision_groups[collision_group])
 		_bullet_lifetime.append(bullet_lifetime)
-		_bullet_position.append(bullet_position)
 		_bullet_rotation.append(bullet_rotation)
+		_bullet_position.append(bullet_pos)
 		_bullet_speed.append(bullet_speed)
 		_bullet_size.append(bullet_size)
 
@@ -460,6 +459,7 @@ func ResetPoolSize() -> void: #reset and fill arrays
 
 	_dead_bullets.resize(preloaded_pool_size)
 	_active_bullets.clear()
+	assert(_active_bullets.is_empty(), "WHAT THE FUCK")
 
 	multimesh.instance_count = preloaded_pool_size
 	_pool_size = preloaded_pool_size
@@ -576,9 +576,8 @@ func IsClearingBullets():
 
 #Movement Callables
 
-func _MovementDefault(bucket_index : int) -> void:
-	var bullet : int 
-	var delta : float = get_physics_process_delta_time()
+func _MovementDefault(delta, bucket_index : int) -> void:
+	var bullet : int
 	var bucket : PackedInt32Array = _movement_type_buckets[bucket_index]
 
 	for index in range(bucket.size() -1, -1, -1):
@@ -586,10 +585,10 @@ func _MovementDefault(bucket_index : int) -> void:
 		if _bullet_lifetime[bullet] > 0:
 			_bullet_position[bullet] += _vector2_right.rotated(_bullet_rotation[bullet]) * _bullet_speed[bullet] * delta
 			_bullet_rotation[bullet] += _bullet_angular_velocity[bullet]
-			#index += 1
+		
 		else:
-			bucket[index] = bucket[bucket.size() - 1] #copy the last item of the array at the index to delete
-			bucket.resize(bucket.size() -1) #delete duplicate
+			_movement_type_buckets[bucket_index][index] = _movement_type_buckets[bucket_index][_movement_type_buckets[bucket_index].size() - 1]
+			_movement_type_buckets[bucket_index].resize(_movement_type_buckets[bucket_index].size() -1)
 
 
 func DEBUG():
