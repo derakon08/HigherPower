@@ -9,7 +9,7 @@ extends Node2D
 		return _bullet_density
 
 @export var stream_number : int = 1
-@export var fire_rate  : float #mustn't be less than 0.1
+@export var fire_rate  : float
 @export var spawn_offset : Vector2
 @export var objective : Node2D
 @export var auto_start : bool = false
@@ -19,18 +19,27 @@ extends Node2D
 @export var bullets_max_angle : float:
 	set(degrees):
 		_bullets_max_angle = deg_to_rad(degrees)
-		_spacing = _bullets_max_angle / bullet_density
+		
+		if bullet_density > 1:
+			_spacing = _bullets_max_angle / (bullet_density - 1)
+		
+		else:
+			_spacing = 0
 
-		if degrees != 360:
-			_angle += _bullets_max_angle * -0.5 #center the wall
 	get:
 		return rad_to_deg(_bullets_max_angle)
 
-@export var angle_between_spawns : float:
+@export var angle_between_streams : float:
 	set(degrees):
-		_angle_between_spawns = deg_to_rad(degrees) #conversion to allow changes at runtime
+		_angle_between_streams = deg_to_rad(degrees) #conversion to allow changes at runtime
 	get:
-		return rad_to_deg(_angle_between_spawns)
+		return rad_to_deg(_angle_between_streams)
+
+@export var angle_between_bullets : float:
+	set(degrees):
+		_angle_between_bullets = deg_to_rad(degrees) #conversion to allow changes at runtime
+	get:
+		return rad_to_deg(_angle_between_bullets)
 
 @export_group("Wait between spawns")
 @export var use_timer : bool = false
@@ -44,8 +53,28 @@ extends Node2D
 
 
 @export_category("Bullet settings")
-@export var stream_final_speed : float #mustn't be less than 1
-@export var stream_start_speed : float
+@export var stream_final_speed : float = 0.0:
+	set (value):
+		_stream_final_speed = value
+		if (value - stream_start_speed) > 0:
+			_speed_step = (value - stream_start_speed) / stream_number
+		else:
+			_speed_step = 0.0
+	
+	get:
+		return _stream_final_speed
+
+
+@export var stream_start_speed : float = 0.0 :
+	set (value):
+		_stream_start_speed = value
+		if (stream_final_speed - value) > 0:
+			_speed_step = (stream_final_speed - value) / stream_number
+		else:
+			_speed_step = 0.0
+	
+	get:
+		return _stream_start_speed
 
 @export var angular_velocity : float:
 	set(degrees):
@@ -111,14 +140,19 @@ var CalculateRotation : Callable = RotationCalcNone
 
 
 var _bullet_density : int
-var _angle_between_spawns : float
+var _angle_between_streams : float
+var	_angle_between_bullets : float
 var _wait_between_spawns : float
 var  _bullets_max_angle : float
 var _angular_velocity : float
 
+var _stream_start_speed : float = 0.0
+var _stream_final_speed : float = 0.0
+
 #bullet data
 var _speed_step : float #difference in speed between bullets in a stream
 var _spacing : float = 0
+var _bullet_deviation : float = 0
 
 #cache variables
 var _angle : float = 0 #spawner direction
@@ -130,7 +164,6 @@ var _allow_shooting : bool = false
 var position_peaks_constant : float
 var movement_peaks_constant : float
 var _rotating_strength : float
-var movement_waves_clock : float
 var preset_get : Array = [0, 0, 0] #keep track of what presets are selected
 
 enum RotationType {none, follow_rotation, follow_objective, changing}
@@ -142,48 +175,48 @@ func _ready() -> void:
 	if !objective:
 		objective = Main.player
 	
-	var stream_speed_difference : float = stream_final_speed - stream_start_speed
+	if _bullets_max_angle != PI * 2:
+		_angle += _bullets_max_angle * -0.5
 
-	if stream_speed_difference > 0:
-		_speed_step = stream_final_speed - stream_start_speed / stream_number
-	else:
-		_speed_step = 0.0
 	_allow_shooting = auto_start
 
 
 func _process(delta: float) -> void:
-	if delta > 1:
-		delta = 1
-
 	if (_allow_shooting): #shoot if told and allowed
 		_to_be_fired += fire_rate * delta
 
-		if (_stream_index >= stream_number): #stream ended, apply logic
-			_stream_index = 0
-			if use_timer: _COOLDOWN_TIMER.Start(_wait_between_spawns)
-			_angle += _angle_between_spawns
-			_allow_shooting = wait_between_spawns == 0
-			stream_over.emit()
-		elif (_to_be_fired > 1):
+
+		if !_to_be_fired < 1:
 			_Shoot()
 			_to_be_fired -= 1
+
+		if _stream_index >= stream_number: #stream ended, apply logic
+			_stream_index = 0
+			_angle += _angle_between_streams
+			_bullet_deviation = 0
+
+			if use_timer && wait_between_spawns != 0: 
+				_COOLDOWN_TIMER.Start(_wait_between_spawns)
+			_allow_shooting = wait_between_spawns == 0
+			stream_over.emit()
 
 
 func _Shoot():
 	#added because of await in delay spawns
 	var temp_stream_index = _stream_index
-	var pending_bullets_id = []
-	var temp_angle = _angle + global_rotation #keep track of the global and per round _angle separately
+	var pending_bullets_id : Array[Vector2i] = []
+	var temp_angle = _angle + _bullet_deviation + rotation #keep track of the global and per round _angle separately
 
 	_stream_index += 1
+	_bullet_deviation += _angle_between_bullets
 
 	for bullet in bullet_density:
-		if delay_spawns && _allow_shooting:
+		if delay_spawns:
 			pending_bullets_id.append(
 				BulletMap.Shoot(
 					CalculatePosition.call(temp_angle),
 					0,
-					bullet_max_distance + 0.1,
+					bullet_density,
 					CalculateRotation.call(temp_angle),
 					bullet_size,
 					collision_group,
@@ -196,7 +229,7 @@ func _Shoot():
 			BulletMap.Shoot(
 					CalculatePosition.call(temp_angle),
 					stream_start_speed + _speed_step * temp_stream_index,
-					bullet_max_distance + 0.1,
+					bullet_max_distance,
 					CalculateRotation.call(temp_angle),
 					bullet_size,
 					collision_group,
@@ -206,8 +239,9 @@ func _Shoot():
 		
 		temp_angle += _spacing
 	
-	for id in pending_bullets_id.size():
-		BulletMap.TouchBulletData(pending_bullets_id[id], BulletMap.bullet_data.SPEED, true, stream_start_speed + _speed_step * temp_stream_index)
+	for id in pending_bullets_id:
+		BulletMap.TouchSpeed(id, true, stream_start_speed + _speed_step * temp_stream_index)
+		BulletMap.TouchLifetime(id, true, bullet_max_distance)
 
 
 func _CalcPositionOffset(angle : float) -> Vector2:
@@ -230,7 +264,7 @@ func SetSpawner(on : bool = true):
 	_allow_shooting = on
 
 
-func StopShooting():
+func StopSpawner():
 	if use_timer: _COOLDOWN_TIMER.Stop()
 	_allow_shooting = false
 

@@ -115,7 +115,7 @@ func _process(delta: float) -> void:
 	if _free_at_screen_edge && !_game_area.has_point(global_position):
 		_Death()
 	
-	else:
+	elif !_free_at_screen_edge:
 		_free_at_screen_edge = _game_area.has_point(global_position)
 
 

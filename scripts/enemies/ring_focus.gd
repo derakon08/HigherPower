@@ -1,5 +1,5 @@
 class_name Ring_Attack
-extends ENEMY
+extends ENEMYb
 
 @export_category("Pattern")
 @export var stream_density : int = 1
@@ -105,6 +105,10 @@ func _OnWarpAction():
 	else:
 		_angle /= 2
 		_spacing /= 2
+
+
+func _ReachedRouter():
+	pass
 			
 
 			

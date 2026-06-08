@@ -30,7 +30,7 @@ func Save():
 		save_file.store_var(dict)
 		save_file.close()
 
-		push_warning("Saved data!")
+		print("Saved data!")
 	
 	else:
 		push_error("Data error. Lmao")

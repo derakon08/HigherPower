@@ -7,10 +7,6 @@ extends Node
 @export var narrator : Control
 @export var world_freeze_timer : Timer
 
-var _player_normal_speed : int
-var _player_focus_speed : int
-var _player_fire_rate : int
-
 var game_area : Rect2
 var screen_slots : NodePath
 var _transition_node_abs_path : NodePath
@@ -18,11 +14,15 @@ var _transition_node_abs_path : NodePath
 var _game_state_flag : game_state = game_state.ON_MENU
 var _current_level_scene : StringName
 var _current_level_node : Node
+
+var _pauseable : Node
+var _non_pauseable : Node
  
 #The idea to use the signal is to add a freeze function to every node that needs it
 signal freeze_world
 signal unfreeze_world
 signal warp
+signal force_close
 signal DEBUG
 
 enum game_state {ON_MENU, ON_GAME, ON_PAUSE}
@@ -30,11 +30,10 @@ enum game_state {ON_MENU, ON_GAME, ON_PAUSE}
 
 #built in
 func _ready() -> void:
-	_player_normal_speed = player.normal_speed
-	_player_focus_speed = player.focus_speed
-	_player_fire_rate = player.fire_rate
-	_transition_node_abs_path = get_node("NonPausable/Control/Transitions").get_path()
-	screen_slots = get_node("Pauseable/Control/ScreenSlots").get_path()
+	_pauseable = $Pauseable
+	_non_pauseable = $NonPauseable
+	_transition_node_abs_path = _non_pauseable.get_node("Control/Transitions").get_path()
+	screen_slots = _pauseable.get_node("Control/ScreenSlots").get_path()
 	game_area = $MainCamera.get_viewport().get_visible_rect()
 
 	BulletMap.AddNewCollisionGroup("enemies")
@@ -80,7 +79,7 @@ func LoadNode(path : String, can_pause : bool) -> void:
 	var scene_instance = scene.instantiate()
 
 	if can_pause:
-		$Pauseable.add_child(scene_instance)
+		_pauseable.add_child(scene_instance)
 
 		if scene_instance.is_in_group("game_level"):
 			BulletMap.AddObjectiveToGroup("player", Main.player, player.aprox_radius)
@@ -89,14 +88,9 @@ func LoadNode(path : String, can_pause : bool) -> void:
 			player.BombReady()
 
 	else:
-		$NonPausable.add_child(scene_instance)
+		_non_pauseable.add_child(scene_instance)
 	
 	FadeModulator.ExitAt(transition_decor)
-
-func ResetPlayerSettings() -> void:
-	player.normal_speed = _player_normal_speed
-	player.focus_speed = _player_focus_speed
-	player.fire_rate = _player_fire_rate
 
 func GameStart(spawn : Vector2) -> void:
 	_ResumeGame()
@@ -105,19 +99,23 @@ func GameStart(spawn : Vector2) -> void:
 	player.Switch(true)
 
 func GameEnd() -> void:
-	if _current_level_node == null:
-		push_error("No current level is playing")
-		return
-	
 	_ResumeGame()
 	narrator.Talk(" ")
 	_game_state_flag = game_state.ON_MENU
 	player.Switch(false)
 
-	LoadNode("res://scenes/main_menu/main_menu.tscn", false)
+	LoadNode("res://scenes/levels/main_menu/main_menu.tscn", false)
 	BulletMap.Reset()
 	BulletMap.AddObjectiveToGroup("player", player, player.aprox_radius)
-	_current_level_node.queue_free()
+	
+	if !_current_level_node == null:
+		_current_level_node.queue_free()
+	
+	else:
+		push_warning("Closing without set level")
+		force_close.emit()
+		
+
 	_current_level_node = null
 	_current_level_scene = &""
 
@@ -141,13 +139,13 @@ func _PauseGame() -> void:
 	BulletMap.Pause()
 	pause_menu.visible = true
 	pause_menu.grab_focus()
-	$Pauseable.process_mode = Node.PROCESS_MODE_DISABLED
+	_pauseable.process_mode = Node.PROCESS_MODE_DISABLED
 
 func _ResumeGame() -> void:
 	BulletMap.Unpause()
 	_game_state_flag = game_state.ON_GAME
 	pause_menu.visible = false
-	$Pauseable.process_mode = Node.PROCESS_MODE_PAUSABLE
+	_pauseable.process_mode = Node.PROCESS_MODE_PAUSABLE
 
 func _GameClose() -> void:
 	FadeModulator.ShowNodeAtSafe(transition_decor)
