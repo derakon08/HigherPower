@@ -1,9 +1,12 @@
 extends Area2D
 @export var invinsibility_timer : Timer
 @export var bomb_cooldown_timer : Timer
-@export_range(0.0, 1.0) var GAMEPAD_DEADZONE : float = 0.03
-@export var normal_speed : int = 500
-@export var focus_speed : int = 100
+@export_range(0.0, 1.1) var GAMEPAD_DEADZONE : float = 0.03
+@export var normal_speed : float = 500.0
+@export var focus_speed : float = 100.0
+@export var acceleration : float = 1.0
+@export var deceleration : float = 1.0
+@export var rotation_strenght : float = 1.0
 @export var fire_rate : float = 1000
 
 ##This's been exported since i NEED the setter to activate
@@ -33,8 +36,13 @@ var _particle_trail : GPUParticles2D
 var _vulnerable : bool = false
 var _bomb_ready : bool = true
 
+var _current_speed : float = 0.0
+var _direction : Vector2 = Vector2(0, 1)
+
 @warning_ignore_start("unused_private_class_variable")
 var _atlas_sprite : int = 4
+
+const EMITING_LIMIT : float = 50
 
 signal player_hit
 
@@ -42,29 +50,40 @@ signal player_hit
 
 
 func _ready() -> void:
+	Switch(false)
 	_particle_explosion = $ParticlesExplosion
 	_particle_trail = $Trail
-	_transition_node = $Transition
-	_transition_node.AllowMovement()
+	_transition_node = %Trans
 	aprox_radius = get_node("CollisionShape2D").shape.radius
 
-	_transition_node.end_of_pool.connect(_BombEnd)
+	_transition_node.stream_over.connect(_BombEnd)
 	invinsibility_timer.timeout.connect(_Vulnerable.bind(true))
 	bomb_cooldown_timer.timeout.connect(BombReady.bind(true))
 
 
 func _physics_process(delta: float) -> void:
-	var velocity : Vector2 = Input.get_vector("left", "right", "up", "down")
+	var input_vector : Vector2 = Input.get_vector("left", "right", "up", "down", 0.0)
 
-	if velocity.length() > GAMEPAD_DEADZONE:
-		position += velocity * (focus_speed if _focus else normal_speed) * delta
-		_particle_trail.emitting = true
+	if input_vector.length() > GAMEPAD_DEADZONE:
+		_current_speed = lerp(_current_speed, (focus_speed if _focus else normal_speed), acceleration)
+		_direction = lerp(_direction, input_vector, rotation_strenght)
+		
 	
 	else:
-		_particle_trail.emitting = false
+		_current_speed = lerp(_current_speed, 0.0, deceleration)
+		
+
+	position += _direction * _current_speed * delta
 
 
 func _process(delta: float) -> void:
+	if _current_speed > EMITING_LIMIT:
+		_particle_trail.speed_scale = _current_speed * delta
+		_particle_trail.lifetime = _current_speed * delta
+		_particle_trail.emitting = true
+	else:
+		_particle_trail.emitting = false
+
 	if (_allow_shooting && _vulnerable):
 		_to_be_fired += fire_rate * delta
 		_Shoot.call()
@@ -97,14 +116,14 @@ func _BombStart():
 	_Vulnerable(false)
 	_bomb_ready = false
 	shoot_mode = !_shoot_mode
-	BulletMap.ClearGameBullets()
 
 	Main.warp.emit()
 	bomb_cooldown_timer.start()
-	_transition_node.AllowShooting()
+	_transition_node.SetSpawner(true)
 
 
 func _BombEnd():
+	_transition_node.StopSpawner()
 	Main.InvertBackgroundColor()
 	BulletMap.NukeGameBullets()
 

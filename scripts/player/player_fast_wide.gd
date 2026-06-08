@@ -3,17 +3,19 @@ extends "res://scripts/player/player_base.gd"
 @export var bullet_distance : float = 2
 @export var bullets_in_arc : int
 
+const _bullet_size : int = 50
+
 
 func _ModeOne():
 	if (_to_be_fired > 1 && _focus) || (_to_be_fired > 0.9 && !_focus):
 		var aim : float = _GetPlayerAim()
 
 		BulletMap.Shoot(
-			global_position + Vector2.RIGHT.rotated(aim) * aprox_radius,
+			global_position + Vector2.RIGHT.rotated(aim) * _bullet_size * 0.5,
 			bullet_speed,
 			bullet_distance, 
-			aim if _focus else aim + randf_range(-20,20) * 0.01745,
-			50,
+			aim if _focus else aim + deg_to_rad(randf_range(-20,20)),
+			_bullet_size,
 			"enemies",
 			_atlas_sprite)
 
@@ -32,7 +34,7 @@ func _ModeTwo():
 				bullet_speed,
 				bullet_distance, 
 				aim + angle,
-				50,
+				_bullet_size,
 				"enemies",
 				_atlas_sprite)
 
