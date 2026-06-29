@@ -36,9 +36,9 @@ func _ready() -> void:
 	screen_slots = _pauseable.get_node("Control/ScreenSlots").get_path()
 	game_area = $MainCamera.get_viewport().get_visible_rect()
 
-	BulletMap.AddNewCollisionGroup("enemies")
-	BulletMap.AddNewCollisionGroup("player")
-	BulletMap.AddObjectiveToGroup("player", player, player.aprox_radius)
+	print("Group dummy set: " + str(GlobalBulletMap.AddNewCollisionGroup("dummy")))
+	print("Group enemies set:" + str(GlobalBulletMap.AddNewCollisionGroup("enemies")))
+	print("Group player set:" + str(GlobalBulletMap.AddNewCollisionGroup("player")))
 
 	world_freeze_timer.timeout.connect(unfreeze_world.emit)
 
@@ -82,7 +82,7 @@ func LoadNode(path : String, can_pause : bool) -> void:
 		_pauseable.add_child(scene_instance)
 
 		if scene_instance.is_in_group("game_level"):
-			BulletMap.AddObjectiveToGroup("player", Main.player, player.aprox_radius)
+			GlobalBulletMap.AddObjective("player", Main.player, player.aprox_radius)
 			_current_level_node = get_node("Pauseable/" + scene_instance.name)
 			_current_level_scene = path
 			player.BombReady()
@@ -105,8 +105,7 @@ func GameEnd() -> void:
 	player.Switch(false)
 
 	LoadNode("res://scenes/levels/main_menu/main_menu.tscn", false)
-	BulletMap.Reset()
-	BulletMap.AddObjectiveToGroup("player", player, player.aprox_radius)
+	GlobalBulletMap.Reset()
 	
 	if !_current_level_node == null:
 		_current_level_node.queue_free()
@@ -129,20 +128,20 @@ func Restart() -> void:
 	narrator.Talk(" ")
 
 	LoadNode(_current_level_scene, true)
-	BulletMap.Reset()
-	BulletMap.AddObjectiveToGroup("player", player, player.aprox_radius)
+	GlobalBulletMap.Reset()
+	GlobalBulletMap.AddObjective("player", player, player.aprox_radius)
 	_current_level_node.queue_free()
 
 #helpers
 func _PauseGame() -> void:
 	_game_state_flag = game_state.ON_PAUSE
-	BulletMap.Pause()
+	GlobalBulletMap.Pause()
 	pause_menu.visible = true
 	pause_menu.grab_focus()
 	_pauseable.process_mode = Node.PROCESS_MODE_DISABLED
 
 func _ResumeGame() -> void:
-	BulletMap.Unpause()
+	GlobalBulletMap.Unpause()
 	_game_state_flag = game_state.ON_GAME
 	pause_menu.visible = false
 	_pauseable.process_mode = Node.PROCESS_MODE_PAUSABLE
